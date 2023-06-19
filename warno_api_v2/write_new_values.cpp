@@ -73,6 +73,30 @@ bool writeData(params* unitToMod,data_t data,settings_t settings) {
                 fputs(s.c_str(), fTemp);
                 hit = true;
             }
+            if (count == (unitToMod->unitsToModify[i]->exportLineNumber + unitToMod->unitsToModify[i]->maxSpeedLineOffset)) {
+
+                s.clear(); str.clear(); ss.str(std::string());
+                s = "               MaxSpeed         = ";
+                ss << data.new_maxSpeed;
+                str = ss.str();
+                str.append("\n");
+                s.append(str);
+
+                fputs(s.c_str(), fTemp);
+                hit = true;
+            }
+            if (count == (unitToMod->unitsToModify[i]->exportLineNumber + unitToMod->unitsToModify[i]->speedBonusLineOffset)) {
+
+                s.clear(); str.clear(); ss.str(std::string());
+                s = "                    SpeedBonusOnRoad = ";
+                ss << data.new_speedBonus;
+                str = ss.str();
+                str.append("\n");
+                s.append(str);
+
+                fputs(s.c_str(), fTemp);
+                hit = true;
+            }
         }
         if (!hit) {
             fputs(buffer, fTemp);

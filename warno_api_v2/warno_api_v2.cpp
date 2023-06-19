@@ -12,11 +12,11 @@ int unitcount = 0;
 
 //entry point
 int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow){
-    /* DEBUG
+    //DEBUG
     AllocConsole();
     FILE* f;
     freopen_s(&f, "CONOUT$", "w", stdout);
-    */
+    //
     // Create application window
     //ImGui_ImplWin32_EnableDpiAwareness();
     WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"ImGui Example", nullptr };
@@ -81,7 +81,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
     // Our state
     params inputs = { };                //store user choices
     settings_t settings = { };          //paths
-    bool show_demo_window = false;      //doc
+    bool show_demo_window = true;      //doc
     bool read_once = false;             //only read the file once
     
     std::memset(inputs.checkboxes_allUnits, false, sizeof(inputs.checkboxes_allUnits)); //setting all the values to false

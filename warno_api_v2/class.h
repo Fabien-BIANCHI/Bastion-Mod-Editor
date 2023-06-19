@@ -12,6 +12,9 @@ public:
 	std::string name,nationality,mother_country,acknow_unit_type,type_unit_formation;
 	int cost,costLineOffset;
 	int fuel, fuelTime, fuelLineOffset, fuelTimeLineOffset;
+	int maxSpeed, maxSpeedLineOffset;
+	float speedBonus;
+	int speedBonusLineOffset;
 
 	Unit() {}
 	Unit(std::string _name) : name(_name) {}

@@ -51,8 +51,8 @@ struct params
 //using this struct to store data to write 
 struct data_t
 {
-    int new_cp, new_speed,new_fuel;
-    float new_fuelTime;
+    int new_cp, new_speed,new_fuel, new_maxSpeed;
+    float new_fuelTime, new_speedBonus;
 };
 struct settings_t
 {

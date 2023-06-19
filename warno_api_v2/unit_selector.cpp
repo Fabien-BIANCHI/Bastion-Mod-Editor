@@ -201,6 +201,8 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings) {
     static int e = 0; //holding info about which radio button is selected, starting at index 0
     static int fuel = 0;
     static float fuelTime = 0.f;
+    static int maxspeed = 0;
+    static float speedBonus = 0.f;
     int size = user_inputs->unitsToModify.size();
     
     ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "unitcount : %d", size);
@@ -227,7 +229,8 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings) {
         cp = user_inputs->unitsToModify[e]->cost; //index du radio button
         fuel = user_inputs->unitsToModify[e]->fuel;
         fuelTime = user_inputs->unitsToModify[e]->fuelTime;
-
+        maxspeed = user_inputs->unitsToModify[e]->maxSpeed;
+        speedBonus = user_inputs->unitsToModify[e]->speedBonus;
 
         user_inputs->old_e_value = e;
     }
@@ -238,12 +241,17 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings) {
     ImGui::Text("Modifications : ");
     ImGui::Separator();
 
- 
-
     ImGui::InputInt("command points", &cp);
+
     if (ImGui::CollapsingHeader("Fuel attributes")) {
         ImGui::InputInt("fuel capacity", &fuel);
         ImGui::InputFloat("fuel time", &fuelTime);
+    }
+
+    if (ImGui::CollapsingHeader("Speed Attributes"))
+    {
+        ImGui::InputInt("MaxSpeed", &maxspeed);
+        ImGui::InputFloat("SpeedBonusOnRoad", &speedBonus, (0.00F), (0.0F), "%.8f"); //no step value so no increment or decrement buttons. Shows 8 digits, sometimes what this displays is a bit off from the real value.
     }
 
     ImGui::Separator();
@@ -269,6 +277,8 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings) {
         data.new_speed = speed;
         data.new_fuel = fuel;
         data.new_fuelTime = fuelTime;
+        data.new_maxSpeed = maxspeed;
+        data.new_speedBonus = speedBonus;
         writeData(user_inputs, data,*settings);
     }
     ImGui::PopStyleColor(3);

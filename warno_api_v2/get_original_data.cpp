@@ -166,7 +166,21 @@ void readLine(std::string original_line, int* line_counter_relative,int* line_co
 		iss >> current_unit->fuelTime;
 		current_unit->fuelTimeLineOffset = *line_counter_relative;
 	}
-
+	else if (strstr(buffer.c_str(), "MaxSpeed         =")) {
+		int maxspeed;
+		buffer = buffer.substr(19, 4);
+		std::istringstream iss(buffer);
+		iss >> maxspeed;
+		current_unit->maxSpeed = maxspeed;
+		current_unit->maxSpeedLineOffset = *line_counter_relative;
+	}
+	else if (strstr(buffer.c_str(), "SpeedBonusOnRoad =")) {
+		int speedBonus;
+		buffer = buffer.substr(19, 18);	//on coupe le debut, et on prend au maximum 17 chiffres du float
+		float speedBonus_f = std::stof(buffer);; //convert string to float
+		current_unit->speedBonus = speedBonus_f;
+		current_unit->speedBonusLineOffset = *line_counter_relative;
+	}
 
 }
 
