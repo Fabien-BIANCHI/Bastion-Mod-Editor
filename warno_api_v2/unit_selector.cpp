@@ -111,6 +111,7 @@ void GUI::navBarButtons(Unit* _array[], params* user_inputs) {
         user_inputs->unitsToModify = returnSelectedUnits(_array, user_inputs);
         if (user_inputs->unitsToModify.size()) {
             user_inputs->modify = true;
+            user_inputs->old_e_value = -1;
         }
         else {
             user_inputs->modify = false;
@@ -201,6 +202,7 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings) {
     static int e = 0; //holding info about which radio button is selected, starting at index 0
     static int fuel = 0;
     static float fuelTime = 0.f;
+    static float opticalStrenght = 0.f;
     int size = user_inputs->unitsToModify.size();
     
     ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "unitcount : %d", size);
@@ -223,11 +225,11 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings) {
         }
 
     }
-    if (e < size && (e != user_inputs->old_e_value)) {
+    if ((e < size) && (e != user_inputs->old_e_value)) {
         cp = user_inputs->unitsToModify[e]->cost; //index du radio button
         fuel = user_inputs->unitsToModify[e]->fuel;
         fuelTime = user_inputs->unitsToModify[e]->fuelTime;
-
+        opticalStrenght = user_inputs->unitsToModify[e]->opticalStrenght;
 
         user_inputs->old_e_value = e;
     }
@@ -245,7 +247,9 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings) {
         ImGui::InputInt("fuel capacity", &fuel);
         ImGui::InputFloat("fuel time", &fuelTime);
     }
-
+    if(ImGui::CollapsingHeader("Optical"))
+        ImGui::InputFloat("optical strenght", &opticalStrenght);
+    
     ImGui::Separator();
     //converting int to string
     std::stringstream ss;
@@ -269,6 +273,7 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings) {
         data.new_speed = speed;
         data.new_fuel = fuel;
         data.new_fuelTime = fuelTime;
+        data.new_optical_strenght = opticalStrenght;
         writeData(user_inputs, data,*settings);
     }
     ImGui::PopStyleColor(3);

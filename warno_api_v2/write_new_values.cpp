@@ -73,6 +73,18 @@ bool writeData(params* unitToMod,data_t data,settings_t settings) {
                 fputs(s.c_str(), fTemp);
                 hit = true;
             }
+            if (count == (unitToMod->unitsToModify[i]->exportLineNumber + unitToMod->unitsToModify[i]->opticalStrenghtLineOffset)) {
+
+                s.clear(); str.clear(); ss.str(std::string());
+                s = "                    OpticalStrength = ";
+                ss << data.new_optical_strenght;
+                str = ss.str();
+                str.append("\n");
+                s.append(str);
+
+                fputs(s.c_str(), fTemp);
+                hit = true;
+            }
         }
         if (!hit) {
             fputs(buffer, fTemp);
