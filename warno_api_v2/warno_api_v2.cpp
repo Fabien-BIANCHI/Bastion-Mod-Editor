@@ -7,16 +7,17 @@ static LPDIRECT3D9              g_pD3D = nullptr;
 static LPDIRECT3DDEVICE9        g_pd3dDevice = nullptr;
 static UINT                     g_ResizeWidth = 0, g_ResizeHeight = 0;
 static D3DPRESENT_PARAMETERS    g_d3dpp = {};
-Unit* allUnits[NUMBER_OF_UNITS];
-int unitcount = 0;
+
+std::vector<Unit*> allUnits;
+int number_of_units;
 
 //entry point
 int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow){
-    /*
+    
     AllocConsole();
     FILE* f;
     freopen_s(&f, "CONOUT$", "w", stdout);
-    */
+    
     // Create application window
     //ImGui_ImplWin32_EnableDpiAwareness();
     WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"ImGui Example", nullptr };
@@ -83,7 +84,6 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
     settings_t settings = { };          //paths
     bool show_demo_window = false;      //doc
     bool read_once = false;             //only read the file once
-    
     std::memset(inputs.checkboxes_allUnits, false, sizeof(inputs.checkboxes_allUnits)); //setting all the values to false
     
 
@@ -130,10 +130,11 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
         //Il indique si l'application a trouvé un chemin valide pour un dossier de mod.
         if (inputs.status == params::VALID) {  
             if (read_once) {
-                unitcount = getDataFromFile(allUnits,&settings);
+                getDataFromFile(&allUnits,&settings);
+                number_of_units = allUnits.size();
                 read_once = false;
             }
-            GUI::unitWindow(unitcount, allUnits, &inputs,&settings,&x_button); 
+            GUI::unitWindow(number_of_units, &allUnits, &inputs,&settings,&x_button);
         }
         else {
             GUI::directoryWindow(&inputs, &x_button);
@@ -175,10 +176,10 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
     ImGui_ImplDX9_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
-    /*
+    
     fclose(f);
     FreeConsole();
-    */
+    
     CleanupDeviceD3D();
     DestroyWindow(hwnd);
     UnregisterClassW(wc.lpszClassName, wc.hInstance);

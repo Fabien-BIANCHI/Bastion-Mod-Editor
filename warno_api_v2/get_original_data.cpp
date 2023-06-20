@@ -11,7 +11,7 @@ bool is_file_exist(const char* fileName)
 /// </summary>
 /// <param name="array"></param>
 /// <returns></returns>
-int getDataFromFile(Unit* unit_array[], settings_t* settings) {
+int getDataFromFile(std::vector<Unit*> unit_vector[], settings_t* settings) {
 
 	char buffer[256];			//store the line read by fgets(), don't go under 200 some lines are long and it will cause issues for the line counters variables
 	int line_counter_relative = 1;		//count line but is relative to the export line of the unit	
@@ -74,7 +74,7 @@ int getDataFromFile(Unit* unit_array[], settings_t* settings) {
 	while (fgets(buffer, sizeof(buffer), settings->hNew_file) != NULL) {
 
 		line = (std::string)buffer;
-		readLine(line, &line_counter_relative,&line_counter, &units_counter, unit_array);
+		readLine(line, &line_counter_relative,&line_counter, &units_counter, unit_vector);
 
 		line_counter_relative++;
 		line_counter++;
@@ -95,29 +95,32 @@ std::string deleteSpacePrefix(std::string original){
 	return new_string;
 }
 //read every line and checking if the line contains data that we need to store in our unit instances
-void readLine(std::string original_line, int* line_counter_relative,int* line_counter, int* units_counter, Unit* unit_array[]) {
+void readLine(std::string original_line, int* line_counter_relative,int* line_counter, int* units_counter, std::vector<Unit*> unit_vector[]) {
 
 	//removing the indentation
+	Unit* current_unit = nullptr;
 	std::string buffer = deleteSpacePrefix(original_line);
 	//every time export is found in a string, we reset the line_counter (relative offset) and we create a new instance of the unit class
 	if (strstr(original_line.c_str(), "export")) {
 		*line_counter_relative = 0;
 
-		unit_array[*units_counter] = new Unit();
-		if (unit_array[*units_counter] == nullptr) {
-			return;
+		current_unit = new Unit();
+		if (current_unit) {
+			//saving the base line to which we will had offset later to find attribute for the unit
+			current_unit->exportLineNumber = *line_counter;
+			unit_vector->push_back(current_unit);
+			*units_counter += 1;
 		}
-		//saving the base line to which we will had offset later to find attribute for the unit
-		unit_array[*units_counter]->exportLineNumber = *line_counter; 
-		
-		*units_counter += 1;
 	}
-	Unit* current_unit = unit_array[(*units_counter) - 1];
-	//at the start of a descriptor for a unit, its always the same so we can use fixed size offset
 	if (*line_counter > 4) {
-		switch (*line_counter_relative)
+
+		Unit* current_unit = unit_vector->at((*units_counter) - 1); //-1 because the unit_counter start at 1
+		if (!current_unit) 
+			return;
+		
+		switch (*line_counter_relative) 	//at the start of a descriptor for a unit, its always the same so we can use fixed size offset
 		{
-		case DEBUGNAME_OFFSET:
+		case DEBUGNAME_OFFSET: 
 			buffer = buffer.substr(21, 100);	//cutting the string at index 21
 			current_unit->name = buffer;		//storing into the unit
 			return;
@@ -140,53 +143,50 @@ void readLine(std::string original_line, int* line_counter_relative,int* line_co
 		default:
 			break;
 		}
-	}
-	
+		//the commands points is not at a fixed offset in the export, so we have to find it by looking for a substring
+		//we extract the cost by converting from string to int and we keep the line offset for future purpose
+		if (strstr(buffer.c_str(), "~/Resource_CommandPoints")) {
+			int cp;
+			buffer = buffer.substr(27, 4);	//on coupe le debut 
+			std::istringstream iss(buffer); //convert string to int
+			iss >> cp;
+			current_unit->cost = cp;
+			current_unit->costLineOffset = *line_counter_relative;
+		}
 
-	//the commands points is not at a fixed offset in the export, so we have to find it by looking for a substring
-	//we extract the cost by converting from string to int and we keep the line offset for future purpose
-	if (strstr(buffer.c_str(), "~/Resource_CommandPoints")) {
-		int cp;
-		buffer = buffer.substr(27, 4);	//on coupe le debut 
-		std::istringstream iss(buffer); //convert string to int
-		iss >> cp;
-		current_unit->cost = cp;
-		current_unit->costLineOffset = *line_counter_relative;
+		else if (strstr(buffer.c_str(), "FuelCapacity     = ")) {
+			buffer = buffer.substr(19, 4);
+			std::istringstream iss(buffer);
+			iss >> current_unit->fuel;
+			current_unit->fuelLineOffset = *line_counter_relative;
+		}
+		else if (strstr(buffer.c_str(), "FuelMoveDuration = ")) {
+			buffer = buffer.substr(19, 4);
+			std::istringstream iss(buffer);
+			iss >> current_unit->fuelTime;
+			current_unit->fuelTimeLineOffset = *line_counter_relative;
+		}
+		else if (strstr(buffer.c_str(), "MaxSpeed         =")) {
+			int maxspeed;
+			buffer = buffer.substr(19, 4);
+			std::istringstream iss(buffer);
+			iss >> maxspeed;
+			current_unit->maxSpeed = maxspeed;
+			current_unit->maxSpeedLineOffset = *line_counter_relative;
+		}
+		else if (strstr(buffer.c_str(), "SpeedBonusOnRoad =")) {
+			int speedBonus;
+			buffer = buffer.substr(19, 18);	//on coupe le debut, et on prend au maximum 17 chiffres du float
+			float speedBonus_f = std::stof(buffer);; //convert string to float
+			current_unit->speedBonus = speedBonus_f;
+			current_unit->speedBonusLineOffset = *line_counter_relative;
+		}
+		else if (strstr(buffer.c_str(), "OpticalStrength = ")) {
+			buffer = buffer.substr(18, 4);
+			std::istringstream iss(buffer);
+			iss >> current_unit->opticalStrenght;
+			current_unit->opticalStrenghtLineOffset = *line_counter_relative;
+		}
 	}
-
-	else if (strstr(buffer.c_str(), "FuelCapacity     = ") ) {
-		buffer = buffer.substr(19, 4);	
-		std::istringstream iss(buffer); 
-		iss >> current_unit->fuel;
-		current_unit->fuelLineOffset = *line_counter_relative;
-	}
-	else if (strstr(buffer.c_str(), "FuelMoveDuration = ")) {
-		buffer = buffer.substr(19, 4);	
-		std::istringstream iss(buffer); 
-		iss >> current_unit->fuelTime;
-		current_unit->fuelTimeLineOffset = *line_counter_relative;
-	}
-	else if (strstr(buffer.c_str(), "MaxSpeed         =")) {
-		int maxspeed;
-		buffer = buffer.substr(19, 4);
-		std::istringstream iss(buffer);
-		iss >> maxspeed;
-		current_unit->maxSpeed = maxspeed;
-		current_unit->maxSpeedLineOffset = *line_counter_relative;
-	}
-	else if (strstr(buffer.c_str(), "SpeedBonusOnRoad =")) {
-		int speedBonus;
-		buffer = buffer.substr(19, 18);	//on coupe le debut, et on prend au maximum 17 chiffres du float
-		float speedBonus_f = std::stof(buffer);; //convert string to float
-		current_unit->speedBonus = speedBonus_f;
-		current_unit->speedBonusLineOffset = *line_counter_relative;
-	}
-	else if (strstr(buffer.c_str(), "OpticalStrength = ")) {
-		buffer = buffer.substr(18, 4);
-		std::istringstream iss(buffer);
-		iss >> current_unit->opticalStrenght;
-		current_unit->opticalStrenghtLineOffset = *line_counter_relative;
-	}
-
 }
 

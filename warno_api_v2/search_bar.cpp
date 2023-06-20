@@ -29,13 +29,13 @@ std::string removeUnderscore(std::string str) {
 /// </summary>
 /// <param name="str"></param>
 /// <returns></returns>
-std::vector<Unit*> searchUnit(std::string str,Unit* _array[]) {
+std::vector<Unit*> searchUnit(std::string str, std::vector<Unit*> unit_vector[]) {
 
 	std::vector<Unit*> results;
 	Unit* current = nullptr;
 	for (int i = 0; i < NUMBER_OF_UNITS; i++) {
 
-		current = _array[i];
+		current = unit_vector->at(i);
 
 		//the idea is to make the string from the user the same as the one in the array
 		//first, lets make both lowercase

@@ -50,28 +50,28 @@ struct params
     char str2[128] = ""; //Toby
     enum { VALID, EMPTY_STRING, PATH_NOT_FOUND, FILES_MISSING } status = EMPTY_STRING; //Toby
 };
-//using this struct to store data to write 
-struct data_t
+//using this struct to store data to pass to the write function
+typedef struct data
 {
     int new_cp, new_speed,new_fuel, new_maxSpeed;
     float new_speedBonus;
     float new_fuelTime,new_optical_strenght;
-};
-struct settings_t
+}data_t;
+typedef struct settings
 {
     std::string original_path, new_path;
     FILE* hNew_file;
-};
+}settings_t;
 namespace GUI
 {
-    void displayUnits(std::string filter, int unitcount, Unit* _array[], int* counter, params* inputs);
-    void displayTreeNode(std::string ack[], int unitcount, Unit* _array[], int* counter, params* inputs);
-    std::vector<Unit*> returnSelectedUnits(Unit* _array[], params* inputs);
-    void unitWindow(int unitcount, Unit* _array[], params* user_inputs, settings_t* settings,  bool* x_button);
+    void displayUnits(std::string filter, int unitcount, std::vector<Unit*> unit_vector[], int* counter, params* inputs);
+    void displayTreeNode(std::string ack[], int unitcount, std::vector<Unit*> unit_vector[], int* counter, params* inputs);
+    std::vector<Unit*> returnSelectedUnits(std::vector<Unit*> unit_vector[], params* inputs);
+    void unitWindow(int unitcount, std::vector<Unit*> unit_vector[], params* user_inputs, settings_t* settings, bool* x_button);
     void unitSelectedWindow(params* user_inputs,settings_t* settings);
     void updateStatsView(params* user_inputs, int indexToSkip);
-    void showSearchResults(std::vector<Unit*> units , std::vector<Unit*>  user_inputs);
-    void navBarButtons(Unit* _array[], params* unitToMod);
+    void showSearchResults(std::vector<Unit*> units, std::vector<Unit*>  user_inputs);
+    void navBarButtons(std::vector<Unit*> unit_vector[], params* unitToMod);
     void directoryWindow(params* user_inputs, bool* x_button);
 }
 // Forward declarations of helper functions
@@ -79,10 +79,10 @@ bool CreateDeviceD3D(HWND hWnd);
 void CleanupDeviceD3D();
 void ResetDevice();
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-int getDataFromFile(Unit* _array[], settings_t* settings);
-void readLine(std::string line, int* line_counter,int* line_counter_all, int* units_counter, Unit* _array[]);
+int getDataFromFile(std::vector<Unit*> unit_vector[], settings_t* settings);
+void readLine(std::string line, int* line_counter,int* line_counter_all, int* units_counter, std::vector<Unit*> unit_vector[]);
 bool writeData(params* unitToMod, data_t data,settings_t settings);
-std::vector<Unit*> searchUnit(std::string str, Unit* _array[]);
+std::vector<Unit*> searchUnit(std::string str, std::vector<Unit*> unit_vector[]);
 bool is_file_exist(const char* fileName);
 bool isPathExist(const std::string& s);
 bool checkFiles(std::string s);

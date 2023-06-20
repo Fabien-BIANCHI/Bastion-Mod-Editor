@@ -8,30 +8,30 @@
 /// <param name="_array"></param>
 /// <param name="counter"></param>
 /// <param name="inputs"></param>
-void GUI::displayUnits(std::string filter, int unitcount, Unit* _array[],int* counter,params* inputs) {
+void GUI::displayUnits(std::string filter, int unitcount, std::vector<Unit*> unit_vector[], int* counter, params* inputs) {
 
     *counter = 0;
     for (int i = 0; i < unitcount; i++) {
         if (strcmp(filter.c_str(), "") == 0) { //all units
-            ImGui::Checkbox(("%s", _array[i]->name.c_str()), &inputs->checkboxes_allUnits[i]);
+            ImGui::Checkbox(("%s", unit_vector->at(i)->name.c_str()), &inputs->checkboxes_allUnits[i]);
             (*counter) += 1;
         }
-        else if (strcmp(filter.c_str(), _array[i]->acknow_unit_type.c_str()) == 0) { //par filtre
-            ImGui::Checkbox(("%s", _array[i]->name.c_str()),&_array[i]->isSelected);
+        else if (strcmp(filter.c_str(), unit_vector->at(i)->acknow_unit_type.c_str()) == 0) { //par filtre
+            ImGui::Checkbox(("%s", unit_vector->at(i)->name.c_str()),&unit_vector->at(i)->isSelected);
             (*counter) += 1;
         }
     }
     ImGui::Separator();
     ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "total count : %d", *counter);
 }
-void GUI::displayTreeNode(std::string ack[],int unitcount , Unit* _array[], int* counter,params* inputs) {
+void GUI::displayTreeNode(std::string ack[],int unitcount ,std::vector<Unit*> unit_vector[], int* counter, params* inputs) {
 
     for (int i = 0; i < NUMBER_OF_ACKTYPE; i++) {
 
         if (ImGui::TreeNode(ack[i].c_str())) { 
             ack[i].append("\n"); 
             ImGui::Separator();
-            displayUnits(ack[i], unitcount, _array, counter,inputs);
+            displayUnits(ack[i], unitcount, unit_vector, counter,inputs);
             ImGui::TreePop();
         }
     }
@@ -58,31 +58,31 @@ bool isAlreadyPresent(std::vector<Unit*> _vector,Unit* test) {
 /// <param name="_array"></param>
 /// <param name="inputs"></param>
 /// <returns></returns>
-std::vector<Unit*> GUI::returnSelectedUnits(Unit* _array[],params* inputs) {
+std::vector<Unit*> GUI::returnSelectedUnits(std::vector<Unit*> unit_vector[], params* inputs) {
 
     std::vector<Unit*> returnPtrs;
 
     for (int i = 0; i < NUMBER_OF_UNITS; i++) { //les sous categories
-        if (_array[i] != nullptr) {
-            if (_array[i]->isSelected) {
-                returnPtrs.push_back(_array[i]);
+        if (unit_vector->at(i) != nullptr) {
+            if (unit_vector->at(i)->isSelected) {
+                returnPtrs.push_back(unit_vector->at(i));
             }
         }
     }
     for (int j = 0; j < NUMBER_OF_UNITS; j++) { //la sous categorie "all"
         if (inputs->checkboxes_allUnits[j]) {
-            if (_array[j] != nullptr) {
-                if (!isAlreadyPresent(returnPtrs, _array[j])) {
-                    returnPtrs.push_back(_array[j]);
+            if (unit_vector->at(j) != nullptr) {
+                if (!isAlreadyPresent(returnPtrs, unit_vector->at(j))) {
+                    returnPtrs.push_back(unit_vector->at(j));
                 }
             }
         }
     }
     return returnPtrs;
 }
-void GUI::navBarButtons(Unit* _array[], params* user_inputs) {
+void GUI::navBarButtons(std::vector<Unit*> unit_vector[], params* user_inputs) {
     if (ImGui::Button("search")) {
-        user_inputs->search_results = searchUnit(user_inputs->str1, _array);
+        user_inputs->search_results = searchUnit(user_inputs->str1, unit_vector);
         user_inputs->show_results = true;
     }
     ImGui::SameLine();
@@ -100,7 +100,7 @@ void GUI::navBarButtons(Unit* _array[], params* user_inputs) {
 
     if (ImGui::Button("Unselect all units")) {
         for (int i = 0; i < NUMBER_OF_UNITS; i++) {
-            _array[i]->isSelected = false;
+            unit_vector->at(i)->isSelected = false;
         }
     }
    
@@ -108,7 +108,7 @@ void GUI::navBarButtons(Unit* _array[], params* user_inputs) {
 
     if (ImGui::Button("modify selected units")) {
         user_inputs->unitsToModify.clear();
-        user_inputs->unitsToModify = returnSelectedUnits(_array, user_inputs);
+        user_inputs->unitsToModify = returnSelectedUnits(unit_vector, user_inputs);
         if (user_inputs->unitsToModify.size()) {
             user_inputs->modify = true;
             user_inputs->old_e_value = -1;
@@ -120,7 +120,7 @@ void GUI::navBarButtons(Unit* _array[], params* user_inputs) {
    
 }
 //main window
-void GUI::unitWindow(int unitcount, Unit* _array[], params* user_inputs,settings_t* settings, bool* x_button)
+void GUI::unitWindow(int unitcount, std::vector<Unit*> unit_vector[], params* user_inputs, settings_t* settings, bool* x_button)
 {
     int counter;
     std::string ack_type[NUMBER_OF_ACKTYPE]; //string array containing all "AcknowUnitType" 
@@ -160,7 +160,7 @@ void GUI::unitWindow(int unitcount, Unit* _array[], params* user_inputs,settings
     
     ImGui::InputTextWithHint("##unitNameBox","search unit here", user_inputs->str1, IM_ARRAYSIZE(user_inputs->str1));
  
-    navBarButtons(_array, user_inputs);
+    navBarButtons(unit_vector, user_inputs);
    
     if (user_inputs->search_results.size()) {
         if (user_inputs->show_results) {
@@ -169,11 +169,11 @@ void GUI::unitWindow(int unitcount, Unit* _array[], params* user_inputs,settings
     }
     if (ImGui::CollapsingHeader(("Manual Search"))) {
         
-        displayTreeNode(ack_type, unitcount, _array, &counter,user_inputs);
+        displayTreeNode(ack_type, unitcount, unit_vector, &counter,user_inputs);
         
         if (ImGui::TreeNode("allUnits")) {
 
-            displayUnits("", unitcount, _array, &counter,user_inputs);
+            displayUnits("", unitcount, unit_vector, &counter,user_inputs);
             ImGui::TreePop();
         }
     }
