@@ -1,5 +1,32 @@
 #include "header.h"
 #define BUFFER_SIZE 256
+//int or float depending on the type, set the un-used param as NULL
+std::string customStr(std::string text, int* intVal,float* floatVal) {
+
+    if (intVal && floatVal) 
+        MessageBoxA(NULL,"Error1 writing data",NULL,NULL);
+    if(!intVal && !floatVal)
+        MessageBoxA(NULL, "Error2 writing data", NULL, NULL);
+
+    std::string s;
+    std::string str;
+    std::stringstream ss;
+
+    if (intVal) {
+        s = text;
+        ss << *intVal;
+        str = ss.str();
+        s.append(str);
+        return s;
+    }
+    else {
+        s = text;
+        ss << *floatVal;
+        str = ss.str();
+        s.append(str);
+        return s;
+    }
+}
 
 bool writeData(params* unitToMod,data_t data,settings_t settings) {
 
@@ -10,9 +37,7 @@ bool writeData(params* unitToMod,data_t data,settings_t settings) {
     char buffer[BUFFER_SIZE];
     int  count;
 
-    std::string s;
-    std::string str;
-    std::stringstream ss;
+   
 
     /*  Open all required files */
     fopen_s(&fPtr, settings.new_path.c_str(), "r");
@@ -39,80 +64,41 @@ bool writeData(params* unitToMod,data_t data,settings_t settings) {
         for (int i = 0; i < unitToMod->unitsToModify.size(); i++) {
             /* If current line is line to replace */
             if (count == (unitToMod->unitsToModify[i]->exportLineNumber + unitToMod->unitsToModify[i]->costLineOffset)) { //comand points
-                s.clear(); str.clear(); ss.str(std::string());
-                s = "                        (~/Resource_CommandPoints, ";
-                ss << data.new_cp;
-                str = ss.str();
-                str.append("),\n");
-                s.append(str);
-
-                fputs(s.c_str(), fTemp);
+                
+                fputs(customStr("                        (~/Resource_CommandPoints, ", &data.new_cp,NULL).append("),\n").c_str(), fTemp);
                 hit = true;
             }
             if (count == (unitToMod->unitsToModify[i]->exportLineNumber + unitToMod->unitsToModify[i]->fuelLineOffset)) {
 
-                s.clear(); str.clear(); ss.str(std::string());
-                s = "                    FuelCapacity     = ";
-                ss << data.new_fuel;
-                str = ss.str();
-                str.append("\n");
-                s.append(str);
-
-                fputs(s.c_str(), fTemp);
+          
+                fputs(customStr("                    FuelCapacity     = ", &data.new_fuel,NULL).append("\n").c_str(), fTemp);
                 hit = true;
             }
             if (count == (unitToMod->unitsToModify[i]->exportLineNumber + unitToMod->unitsToModify[i]->fuelTimeLineOffset)) {
 
-                s.clear(); str.clear(); ss.str(std::string());
-                s = "                    FuelMoveDuration = ";
-                ss << data.new_fuelTime;
-                str = ss.str();
-                str.append("\n");
-                s.append(str);
 
-                fputs(s.c_str(), fTemp);
+                fputs(customStr("                    FuelMoveDuration = ", NULL, &data.new_fuelTime).append("\n").c_str(), fTemp);
                 hit = true;
             }
             if (count == (unitToMod->unitsToModify[i]->exportLineNumber + unitToMod->unitsToModify[i]->maxSpeedLineOffset)) {
 
-                s.clear(); str.clear(); ss.str(std::string());
-                s = "               MaxSpeed         = ";
-                ss << data.new_maxSpeed;
-                str = ss.str();
-                str.append("\n");
-                s.append(str);
-
-                fputs(s.c_str(), fTemp);
+                fputs(customStr("               MaxSpeed         = ", &data.new_maxSpeed,NULL).append("\n").c_str(), fTemp);
                 hit = true;
             }
             if (count == (unitToMod->unitsToModify[i]->exportLineNumber + unitToMod->unitsToModify[i]->speedBonusLineOffset)) {
 
-                s.clear(); str.clear(); ss.str(std::string());
-                s = "                    SpeedBonusOnRoad = ";
-                ss << data.new_speedBonus;
-                str = ss.str();
-                str.append("\n");
-                s.append(str);
+                fputs(customStr("                    SpeedBonusOnRoad = ", NULL,&data.new_speedBonus).append("\n").c_str(), fTemp);
+                hit = true;
             }
             if (count == (unitToMod->unitsToModify[i]->exportLineNumber + unitToMod->unitsToModify[i]->opticalStrenghtLineOffset)) {
 
-                s.clear(); str.clear(); ss.str(std::string());
-                s = "                    OpticalStrength = ";
-                ss << data.new_optical_strenght;
-                str = ss.str();
-                str.append("\n");
-                s.append(str);
-
-                fputs(s.c_str(), fTemp);
+                fputs(customStr("                    OpticalStrength = ", NULL,&data.new_optical_strenght).append("\n").c_str(), fTemp);
                 hit = true;
-                        s.append(str);
-
             }
         }
         if (!hit) {
             fputs(buffer, fTemp);
         }
-       
         hit = false;
         count++;
     }
