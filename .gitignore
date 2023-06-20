@@ -4,3 +4,5 @@
 
 /.vs/warno_api_v2/v17
 /.vs
+/warno_api_v2/x64/Debug
+/.gitignore
