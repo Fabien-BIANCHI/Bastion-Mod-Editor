@@ -33,7 +33,7 @@ std::vector<Unit*> searchUnit(std::string str, std::vector<Unit*> unit_vector[])
 
 	std::vector<Unit*> results;
 	Unit* current = nullptr;
-	for (int i = 0; i < NUMBER_OF_UNITS; i++) {
+	for (int i = 0; i < unit_vector->size(); i++) {
 
 		current = unit_vector->at(i);
 

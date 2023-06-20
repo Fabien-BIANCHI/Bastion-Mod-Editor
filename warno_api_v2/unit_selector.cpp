@@ -62,14 +62,14 @@ std::vector<Unit*> GUI::returnSelectedUnits(std::vector<Unit*> unit_vector[], pa
 
     std::vector<Unit*> returnPtrs;
 
-    for (int i = 0; i < NUMBER_OF_UNITS; i++) { //les sous categories
+    for (int i = 0; i < unit_vector->size(); i++) { //les sous categories
         if (unit_vector->at(i) != nullptr) {
             if (unit_vector->at(i)->isSelected) {
                 returnPtrs.push_back(unit_vector->at(i));
             }
         }
     }
-    for (int j = 0; j < NUMBER_OF_UNITS; j++) { //la sous categorie "all"
+    for (int j = 0; j < unit_vector->size(); j++) { //la sous categorie "all"
         if (inputs->checkboxes_allUnits[j]) {
             if (unit_vector->at(j) != nullptr) {
                 if (!isAlreadyPresent(returnPtrs, unit_vector->at(j))) {
@@ -99,7 +99,7 @@ void GUI::navBarButtons(std::vector<Unit*> unit_vector[], params* user_inputs) {
     ImGui::SameLine();
 
     if (ImGui::Button("Unselect all units")) {
-        for (int i = 0; i < NUMBER_OF_UNITS; i++) {
+        for (int i = 0; i < unit_vector->size(); i++) {
             unit_vector->at(i)->isSelected = false;
         }
     }
@@ -233,14 +233,11 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings) {
         fuelTime = user_inputs->unitsToModify[e]->fuelTime;
         maxspeed = user_inputs->unitsToModify[e]->maxSpeed;
         speedBonus = user_inputs->unitsToModify[e]->speedBonus;
-
         opticalStrenght = user_inputs->unitsToModify[e]->opticalStrenght;
 
         user_inputs->old_e_value = e;
     }
     
-    
-
     ImGui::Separator();
     ImGui::Text("Modifications : ");
     ImGui::Separator();
@@ -258,15 +255,16 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings) {
         ImGui::InputFloat("SpeedBonusOnRoad", &speedBonus, (0.00F), (0.0F), "%.8f"); //no step value so no increment or decrement buttons. Shows 8 digits, sometimes what this displays is a bit off from the real value.
     }
 
-    if(ImGui::CollapsingHeader("Optical"))
+    if (ImGui::CollapsingHeader("Optical")) {
         ImGui::InputFloat("optical strenght", &opticalStrenght);
+    }
+        
     
     ImGui::Separator();
     //converting int to string
     std::stringstream ss;
     ss << size;
     std::string str = ss.str();
-    
     //reusing id variable for different purpose
     id = "update the ";
     id.append(str);

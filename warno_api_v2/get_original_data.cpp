@@ -13,10 +13,10 @@ bool is_file_exist(const char* fileName)
 /// <returns></returns>
 int getDataFromFile(std::vector<Unit*> unit_vector[], settings_t* settings) {
 
-	char buffer[256];			//store the line read by fgets(), don't go under 200 some lines are long and it will cause issues for the line counters variables
+	char buffer[256];					//store the line read by fgets(), don't go under 200 some lines are long and it will cause issues for the line counters variables
 	int line_counter_relative = 1;		//count line but is relative to the export line of the unit	
-	int line_counter = 1;	//count all lines from the start to the end
-	int units_counter = 0;		//count the unit
+	int line_counter = 1;				//count all lines from the start to the end
+	int units_counter = 0;				//count the unit
 	
 	
 	/*
@@ -51,7 +51,7 @@ int getDataFromFile(std::vector<Unit*> unit_vector[], settings_t* settings) {
 	fclose(direct_f);
 
 
-	if (!CopyFileA(settings->original_path.c_str(), settings->new_path.c_str(), false)) {//true to not overwrite
+	if (!CopyFileA(settings->original_path.c_str(), settings->new_path.c_str(), false)) {	//true to not overwrite
 		MessageBoxA(NULL, "Error while copying original ndf file", NULL, NULL);
 		exit(1);
 	}

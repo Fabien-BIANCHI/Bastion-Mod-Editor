@@ -58,11 +58,11 @@ void GUI::directoryWindow(params* user_inputs, bool* x_button) {
    
     ImGui::Begin("Directory Window",x_button);
     ImGui::Text("Enter the path of your mod folder");
-    ImGui::InputText("<-path", user_inputs->str2, IM_ARRAYSIZE(user_inputs->str2));
+    ImGui::InputText("<-path", user_inputs->user_path, IM_ARRAYSIZE(user_inputs->user_path));
 
     if (ImGui::Button("Use Directory"))
     {
-        const char* path = user_inputs->str2;
+        const char* path = user_inputs->user_path;
         std::string path_str = path;
 
         if (isPathExist(path_str)) //Le chemin existe. Est-ce que le répertoire contient bien les fichiers NDF?

@@ -21,7 +21,6 @@
 
 #include "class.h"
 
-#define NUMBER_OF_UNITS 828
 #define DEBUGNAME_OFFSET 3
 #define NATIONALITY_OFFSET 7
 #define MOTHERCOUNTRY_OFFSET 8
@@ -32,31 +31,31 @@
 //using this struct to pass data related to user choices
 struct params
 {
-    int old_e_value = -1;
+    int old_e_value = -1;       //this is the radio button value, storing so we can check the previous frame value
     
 
-    char str1[128] = "";
-   
-    bool show_units = true;
-    bool modify = false;
-    bool show_results = false;
-    bool opticalList = false;
+    char str1[128] = "";        
+    char user_path[128] = "";
 
-    //these 2 array are used to pass data from the unit selector window to the mod window
-    bool checkboxes_allUnits[NUMBER_OF_UNITS];
-    std::vector<Unit*> unitsToModify;
-    std::vector<Unit*> search_results;
+    bool show_units = true;     //show the  units in the "selected units" window
+    bool modify = false;        //set to true when the user press "modify selected units"
+    bool show_results = false;  //set to true to see the result of the search bar
+    bool opticalList = false;   
 
-    char str2[128] = ""; //Toby
-    enum { VALID, EMPTY_STRING, PATH_NOT_FOUND, FILES_MISSING } status = EMPTY_STRING; //Toby
+    
+    bool *checkboxes_allUnits;          //this array is used to know if a unit is selected in the 'all' tree node
+    std::vector<Unit*> unitsToModify;   //this vector store the units that are going to be modify
+    std::vector<Unit*> search_results;  //this vector store the results of the search bar as pointers
+
+    enum { VALID, EMPTY_STRING, PATH_NOT_FOUND, FILES_MISSING } status = EMPTY_STRING; 
 };
 //using this struct to store data to pass to the write function
 typedef struct data
 {
     int new_cp, new_speed,new_fuel, new_maxSpeed;
-    float new_speedBonus;
-    float new_fuelTime,new_optical_strenght;
+    float new_fuelTime,new_optical_strenght, new_speedBonus;
 }data_t;
+//used to store paths
 typedef struct settings
 {
     std::string original_path, new_path;

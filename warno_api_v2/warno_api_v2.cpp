@@ -9,18 +9,17 @@ static UINT                     g_ResizeWidth = 0, g_ResizeHeight = 0;
 static D3DPRESENT_PARAMETERS    g_d3dpp = {};
 
 std::vector<Unit*> allUnits;
-int number_of_units;
 
 //entry point
 int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow){
-    
+    /*
     AllocConsole();
     FILE* f;
     freopen_s(&f, "CONOUT$", "w", stdout);
-    
+    */
     // Create application window
     //ImGui_ImplWin32_EnableDpiAwareness();
-    WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"ImGui Example", nullptr };
+    WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"warno_api", nullptr };
     RegisterClassExW(&wc);
     HWND hwnd = CreateWindowW(wc.lpszClassName, L"warno_api_v2", WS_OVERLAPPEDWINDOW, 100, 100, 800, 600, nullptr, nullptr, wc.hInstance, nullptr);
 
@@ -82,9 +81,9 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
     // Our state
     params inputs = { };                //store user choices
     settings_t settings = { };          //paths
-    bool show_demo_window = false;      //doc
+    bool show_demo_window = false;       //doc
     bool read_once = false;             //only read the file once
-    std::memset(inputs.checkboxes_allUnits, false, sizeof(inputs.checkboxes_allUnits)); //setting all the values to false
+    
     
 
     // Main loop
@@ -131,10 +130,12 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
         if (inputs.status == params::VALID) {  
             if (read_once) {
                 getDataFromFile(&allUnits,&settings);
-                number_of_units = allUnits.size();
+                int size = allUnits.size();
+                inputs.checkboxes_allUnits = new bool[size];
+                for (int i = 0; i < size; i++) { inputs.checkboxes_allUnits[i] = false; }
                 read_once = false;
             }
-            GUI::unitWindow(number_of_units, &allUnits, &inputs,&settings,&x_button);
+            GUI::unitWindow(allUnits.size(), &allUnits, &inputs,&settings,&x_button);
         }
         else {
             GUI::directoryWindow(&inputs, &x_button);
@@ -170,22 +171,26 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
             ResetDevice();
     }
 
-    remove(settings.original_path.c_str());//delete the old ndf file
-    rename(settings.new_path.c_str(), settings.original_path.c_str()); //rename the txt file 
+    if (remove(settings.original_path.c_str())) {//delete the old ndf file
+        MessageBox(NULL, "Fail removing", NULL, NULL);
+    }
+    if (rename(settings.new_path.c_str(), settings.original_path.c_str())) { //rename the txt file 
+        MessageBox(NULL, "Fail renaming", NULL, NULL);
+    }
+    delete[] inputs.checkboxes_allUnits;
 
     ImGui_ImplDX9_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
-    
+    /*
     fclose(f);
     FreeConsole();
-    
+    */
     CleanupDeviceD3D();
     DestroyWindow(hwnd);
     UnregisterClassW(wc.lpszClassName, wc.hInstance);
 
     return 0;
-
 }
 
 // Helper functions
