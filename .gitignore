@@ -37,3 +37,4 @@ warno_api_v2/imgui/examples/example_win32_directx9/Debug/imgui_widgets.obj
 warno_api_v2/imgui/examples/example_win32_directx9/Debug/main.obj
 .vs/
 
+*.log
