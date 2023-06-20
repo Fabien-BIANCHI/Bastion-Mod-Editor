@@ -111,6 +111,7 @@ void GUI::navBarButtons(Unit* _array[], params* user_inputs) {
         user_inputs->unitsToModify = returnSelectedUnits(_array, user_inputs);
         if (user_inputs->unitsToModify.size()) {
             user_inputs->modify = true;
+            user_inputs->old_e_value = -1;
         }
         else {
             user_inputs->modify = false;
@@ -203,6 +204,7 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings) {
     static float fuelTime = 0.f;
     static int maxspeed = 0;
     static float speedBonus = 0.f;
+    static float opticalStrenght = 0.f;
     int size = user_inputs->unitsToModify.size();
     
     ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "unitcount : %d", size);
@@ -225,12 +227,14 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings) {
         }
 
     }
-    if (e < size && (e != user_inputs->old_e_value)) {
+    if ((e < size) && (e != user_inputs->old_e_value)) {
         cp = user_inputs->unitsToModify[e]->cost; //index du radio button
         fuel = user_inputs->unitsToModify[e]->fuel;
         fuelTime = user_inputs->unitsToModify[e]->fuelTime;
         maxspeed = user_inputs->unitsToModify[e]->maxSpeed;
         speedBonus = user_inputs->unitsToModify[e]->speedBonus;
+
+        opticalStrenght = user_inputs->unitsToModify[e]->opticalStrenght;
 
         user_inputs->old_e_value = e;
     }
@@ -254,6 +258,9 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings) {
         ImGui::InputFloat("SpeedBonusOnRoad", &speedBonus, (0.00F), (0.0F), "%.8f"); //no step value so no increment or decrement buttons. Shows 8 digits, sometimes what this displays is a bit off from the real value.
     }
 
+    if(ImGui::CollapsingHeader("Optical"))
+        ImGui::InputFloat("optical strenght", &opticalStrenght);
+    
     ImGui::Separator();
     //converting int to string
     std::stringstream ss;
@@ -279,6 +286,7 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings) {
         data.new_fuelTime = fuelTime;
         data.new_maxSpeed = maxspeed;
         data.new_speedBonus = speedBonus;
+        data.new_optical_strenght = opticalStrenght;
         writeData(user_inputs, data,*settings);
     }
     ImGui::PopStyleColor(3);

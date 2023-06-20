@@ -33,12 +33,14 @@
 struct params
 {
     int old_e_value = -1;
+    
 
     char str1[128] = "";
    
     bool show_units = true;
     bool modify = false;
     bool show_results = false;
+    bool opticalList = false;
 
     //these 2 array are used to pass data from the unit selector window to the mod window
     bool checkboxes_allUnits[NUMBER_OF_UNITS];
@@ -52,7 +54,8 @@ struct params
 struct data_t
 {
     int new_cp, new_speed,new_fuel, new_maxSpeed;
-    float new_fuelTime, new_speedBonus;
+    float new_speedBonus;
+    float new_fuelTime,new_optical_strenght;
 };
 struct settings_t
 {

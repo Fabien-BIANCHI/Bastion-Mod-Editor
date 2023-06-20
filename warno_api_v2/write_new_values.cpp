@@ -62,7 +62,7 @@ bool writeData(params* unitToMod,data_t data,settings_t settings) {
                 hit = true;
             }
             if (count == (unitToMod->unitsToModify[i]->exportLineNumber + unitToMod->unitsToModify[i]->fuelTimeLineOffset)) {
-                
+
                 s.clear(); str.clear(); ss.str(std::string());
                 s = "                    FuelMoveDuration = ";
                 ss << data.new_fuelTime;
@@ -93,9 +93,20 @@ bool writeData(params* unitToMod,data_t data,settings_t settings) {
                 str = ss.str();
                 str.append("\n");
                 s.append(str);
+            }
+            if (count == (unitToMod->unitsToModify[i]->exportLineNumber + unitToMod->unitsToModify[i]->opticalStrenghtLineOffset)) {
+
+                s.clear(); str.clear(); ss.str(std::string());
+                s = "                    OpticalStrength = ";
+                ss << data.new_optical_strenght;
+                str = ss.str();
+                str.append("\n");
+                s.append(str);
 
                 fputs(s.c_str(), fTemp);
                 hit = true;
+                        s.append(str);
+
             }
         }
         if (!hit) {

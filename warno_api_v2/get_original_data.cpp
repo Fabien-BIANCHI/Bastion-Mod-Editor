@@ -181,6 +181,12 @@ void readLine(std::string original_line, int* line_counter_relative,int* line_co
 		current_unit->speedBonus = speedBonus_f;
 		current_unit->speedBonusLineOffset = *line_counter_relative;
 	}
+	else if (strstr(buffer.c_str(), "OpticalStrength = ")) {
+		buffer = buffer.substr(18, 4);
+		std::istringstream iss(buffer);
+		iss >> current_unit->opticalStrenght;
+		current_unit->opticalStrenghtLineOffset = *line_counter_relative;
+	}
 
 }
 

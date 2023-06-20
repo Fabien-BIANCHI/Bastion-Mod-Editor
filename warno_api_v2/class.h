@@ -15,6 +15,8 @@ public:
 	int maxSpeed, maxSpeedLineOffset;
 	float speedBonus;
 	int speedBonusLineOffset;
+	int opticalStrenghtLineOffset;
+	float opticalStrenght;
 
 	Unit() {}
 	Unit(std::string _name) : name(_name) {}
