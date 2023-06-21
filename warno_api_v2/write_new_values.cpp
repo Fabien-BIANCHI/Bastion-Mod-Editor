@@ -28,7 +28,7 @@ std::string customStr(std::string text, int* intVal,float* floatVal) {
     }
 }
 
-bool writeData(params* unitToMod,data_t data,settings_t settings) {
+bool writeData(params* modPtrs,unit_data_t* unit_data,ammo_data_t* ammo_data,settings_t settings,bool isUnit) {
 
     /* File pointer to hold reference of input file */
     FILE* fPtr;
@@ -37,7 +37,26 @@ bool writeData(params* unitToMod,data_t data,settings_t settings) {
     char buffer[BUFFER_SIZE];
     int  count;
 
-   
+    if (isUnit) {
+        if (unit_data) {
+            settings.original_path = settings.ud_original_path;
+            settings.new_path = settings.ud_new_path;
+        }
+        else {
+            MessageBoxA(NULL, "isUnit is set to true but unit_data is set to null", NULL, NULL);
+            exit(1);
+        }
+    }
+    else {
+        if (ammo_data) {
+            settings.original_path = settings.am_original_path;
+            settings.new_path = settings.am_new_path;
+        }
+        else {
+            MessageBoxA(NULL, "isUnit is set to false but ammo_data is set to null", NULL, NULL);
+            exit(1);
+        }
+    }
 
     /*  Open all required files */
     fopen_s(&fPtr, settings.new_path.c_str(), "r");
@@ -60,44 +79,60 @@ bool writeData(params* unitToMod,data_t data,settings_t settings) {
     bool hit = false;
     while ((fgets(buffer, BUFFER_SIZE, fPtr)) != NULL)
     {
+        if (isUnit) {
+            for (int i = 0; i < modPtrs->unitsToModify.size(); i++) {
+                /* If current line is line to replace */
+                if (count == (modPtrs->unitsToModify[i]->exportLineNumber + modPtrs->unitsToModify[i]->costLineOffset)) { //comand points
 
-        for (int i = 0; i < unitToMod->unitsToModify.size(); i++) {
-            /* If current line is line to replace */
-            if (count == (unitToMod->unitsToModify[i]->exportLineNumber + unitToMod->unitsToModify[i]->costLineOffset)) { //comand points
-                
-                fputs(customStr("                        (~/Resource_CommandPoints, ", &data.new_cp,NULL).append("),\n").c_str(), fTemp);
-                hit = true;
+                    fputs(customStr("                        (~/Resource_CommandPoints, ", &unit_data->new_cp, NULL).append("),\n").c_str(), fTemp);
+                    hit = true;
+                }
+                if (count == (modPtrs->unitsToModify[i]->exportLineNumber + modPtrs->unitsToModify[i]->fuelLineOffset)) {
+
+
+                    fputs(customStr("                    FuelCapacity     = ", &unit_data->new_fuel, NULL).append("\n").c_str(), fTemp);
+                    hit = true;
+                }
+                if (count == (modPtrs->unitsToModify[i]->exportLineNumber + modPtrs->unitsToModify[i]->fuelTimeLineOffset)) {
+
+
+                    fputs(customStr("                    FuelMoveDuration = ", NULL, &unit_data->new_fuelTime).append("\n").c_str(), fTemp);
+                    hit = true;
+                }
+                if (count == (modPtrs->unitsToModify[i]->exportLineNumber + modPtrs->unitsToModify[i]->maxSpeedLineOffset)) {
+
+                    fputs(customStr("               MaxSpeed         = ", &unit_data->new_maxSpeed, NULL).append("\n").c_str(), fTemp);
+                    hit = true;
+                }
+                if (count == (modPtrs->unitsToModify[i]->exportLineNumber + modPtrs->unitsToModify[i]->speedBonusLineOffset)) {
+
+                    fputs(customStr("                    SpeedBonusOnRoad = ", NULL, &unit_data->new_speedBonus).append("\n").c_str(), fTemp);
+                    hit = true;
+                }
+                if (count == (modPtrs->unitsToModify[i]->exportLineNumber + modPtrs->unitsToModify[i]->opticalStrenghtLineOffset)) {
+
+                    fputs(customStr("                    OpticalStrength = ", NULL, &unit_data->new_optical_strenght).append("\n").c_str(), fTemp);
+                    hit = true;
+                }
             }
-            if (count == (unitToMod->unitsToModify[i]->exportLineNumber + unitToMod->unitsToModify[i]->fuelLineOffset)) {
-
-          
-                fputs(customStr("                    FuelCapacity     = ", &data.new_fuel,NULL).append("\n").c_str(), fTemp);
-                hit = true;
-            }
-            if (count == (unitToMod->unitsToModify[i]->exportLineNumber + unitToMod->unitsToModify[i]->fuelTimeLineOffset)) {
-
-
-                fputs(customStr("                    FuelMoveDuration = ", NULL, &data.new_fuelTime).append("\n").c_str(), fTemp);
-                hit = true;
-            }
-            if (count == (unitToMod->unitsToModify[i]->exportLineNumber + unitToMod->unitsToModify[i]->maxSpeedLineOffset)) {
-
-                fputs(customStr("               MaxSpeed         = ", &data.new_maxSpeed,NULL).append("\n").c_str(), fTemp);
-                hit = true;
-            }
-            if (count == (unitToMod->unitsToModify[i]->exportLineNumber + unitToMod->unitsToModify[i]->speedBonusLineOffset)) {
-
-                fputs(customStr("                    SpeedBonusOnRoad = ", NULL,&data.new_speedBonus).append("\n").c_str(), fTemp);
-                hit = true;
-            }
-            if (count == (unitToMod->unitsToModify[i]->exportLineNumber + unitToMod->unitsToModify[i]->opticalStrenghtLineOffset)) {
-
-                fputs(customStr("                    OpticalStrength = ", NULL,&data.new_optical_strenght).append("\n").c_str(), fTemp);
-                hit = true;
+            if (!hit) {
+                fputs(buffer, fTemp);
             }
         }
-        if (!hit) {
-            fputs(buffer, fTemp);
+        else //ammo
+        {
+         
+            for (int j = 0; j < modPtrs->ammunitionToModify.size(); j++) {
+
+                if (count == (modPtrs->ammunitionToModify[j]->startLineNumber + modPtrs->ammunitionToModify[j]->physicalDamagesLineOffset)) {
+                    fputs(customStr("    PhysicalDamages                   = ", NULL, &ammo_data->new_PhysicalDamages).append("\n").c_str(), fTemp);
+                    hit = true;
+                }
+            }
+            if (!hit) {
+                fputs(buffer, fTemp);
+            }
+            
         }
         hit = false;
         count++;
@@ -108,10 +143,14 @@ bool writeData(params* unitToMod,data_t data,settings_t settings) {
     fclose(fTemp);
 
     /* Delete original source file */
-    remove(settings.new_path.c_str());
+    if (remove(settings.new_path.c_str())) {
+        MessageBox(NULL, "Fail deleting after writing", NULL, NULL);
+    }
 
     /* Rename temporary file as original file */
-    rename("replace.tmp", settings.new_path.c_str());
+    if (rename("replace.tmp", settings.new_path.c_str())) {
+        MessageBox(NULL, "Fail renaming after writing", NULL, NULL);
+    }
 
     return true; 
 }

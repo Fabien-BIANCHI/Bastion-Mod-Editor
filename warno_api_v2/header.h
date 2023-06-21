@@ -32,16 +32,18 @@
 struct params
 {
     int old_e_value = -1;       //this is the radio button value, storing so we can check the previous frame value
-    
+    int old_e_value_ammo = -1;
 
-    char str1[128] = "";        
-    char user_path[128] = "";
+    char str1[128]       = "";        
+    char user_path[128]  = "";
 
-    bool show_units = true;     //show the  units in the "selected units" window
-    bool modify = false;        //set to true when the user press "modify selected units"
-    bool show_unit_results = false;  //set to true to see the result of the search bar
-    bool show_ammunition_results = false;
-    bool opticalList = false;   
+    bool show_units                  = true;     //show the  units in the "selected units" window
+    bool show_ammo                   = true;
+    bool modify_units                = false;        //set to true when the user press "modify selected units"
+    bool modify_ammo                 = false;
+    bool show_unit_results           = false;  //set to true to see the result of the search bar
+    bool show_ammunition_results     = false;
+    bool opticalList                 = false;   
 
     
     bool *checkboxes_allUnits;          //this array is used to know if a unit is selected in the 'all' tree node
@@ -55,11 +57,15 @@ struct params
     enum { VALID, EMPTY_STRING, PATH_NOT_FOUND, FILES_MISSING } status = EMPTY_STRING; 
 };
 //using this struct to store data to pass to the write function
-typedef struct data
+typedef struct unit_data
 {
     int new_cp, new_speed,new_fuel, new_maxSpeed;
     float new_fuelTime,new_optical_strenght, new_speedBonus;
-}data_t;
+}unit_data_t;
+typedef struct ammo_data 
+{
+    float new_PhysicalDamages;
+}ammo_data_t;
 //used to store paths
 typedef struct settings
 {
@@ -73,8 +79,10 @@ namespace GUI
     void displayUnits(std::string filter, int unitcount, std::vector<Unit*> unit_vector[], int* counter, params* inputs);
     void displayTreeNode(std::string ack[], int unitcount, std::vector<Unit*> unit_vector[], int* counter, params* inputs);
     std::vector<Unit*> returnSelectedUnits(std::vector<Unit*> unit_vector[], params* inputs);
+    std::vector<Weapon*> returnSelectedAmmo(std::vector<Weapon*> unit_vector[], params* inputs);
     void unitWindow(int unitcount, std::vector<Unit*> unit_vector[], std::vector<Weapon*> weapon_vector[], params* user_inputs, settings_t* settings, bool* x_button);
     void unitSelectedWindow(params* user_inputs,settings_t* settings);
+    void ammoSelectedWindow(params* user_inputs, settings_t* settings);
     void updateStatsView(params* user_inputs, int indexToSkip);
     void showSearchResults(std::vector<Unit*> units, std::vector<Unit*>  user_inputs);
     void showSearchResults(std::vector<Weapon*> ammunition, std::vector<Weapon*> ammunitionToMod);
@@ -89,7 +97,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 int getDataFromFile(std::vector<Unit*> unit_vector[],std::vector<Weapon*> weapons_vector[], settings_t* settings);
 void readLine(std::string line, int* line_counter,int* line_counter_all, int* units_counter, std::vector<Unit*> unit_vector[]);
 void readLine(std::string original_line, int* line_counter_relative, int* line_counter, int* weapon_counter, std::vector<Weapon*> weapon_vector[]);
-bool writeData(params* unitToMod, data_t data,settings_t settings);
+bool writeData(params* modPtrs, unit_data_t* unit_data, ammo_data_t* ammo_data, settings_t settings, bool isUnit);
 std::vector<Unit*> searchUnit(std::string str, std::vector<Unit*> unit_vector[]);
 std::vector<Weapon*> searchUnit(std::string str, std::vector<Weapon*> weapon_vector[]);
 bool is_file_exist(const char* fileName);

@@ -245,5 +245,11 @@ void readLine(std::string original_line, int* line_counter_relative, int* line_c
 	if (*line_counter > 3) {
 		current_weapon = weapon_vector->at((*weapon_counter) - 1);
 		
+		if (strstr(buffer.c_str(), "PhysicalDamages")) {
+			buffer = buffer.substr(36, 5);
+			std::istringstream iss(buffer);
+			iss >> current_weapon->physicalDamages;
+			current_weapon->physicalDamagesLineOffset = *line_counter_relative;
+		}
 	}
 }

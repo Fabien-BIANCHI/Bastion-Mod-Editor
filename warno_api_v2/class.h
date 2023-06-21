@@ -29,6 +29,8 @@ private:
 public:
 	std::string name;
 	int startLineNumber;
+	float physicalDamages;
+	int physicalDamagesLineOffset;
 
 	bool isSelected = false;
 };

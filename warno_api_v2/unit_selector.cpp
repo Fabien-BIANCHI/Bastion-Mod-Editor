@@ -90,9 +90,32 @@ std::vector<Unit*> GUI::returnSelectedUnits(std::vector<Unit*> unit_vector[], pa
     }
     return returnPtrs;
 }
+std::vector<Weapon*> GUI::returnSelectedAmmo(std::vector<Weapon*> weapon_vector[], params* inputs) {
+
+    std::vector<Weapon*> returnPtrs;
+
+    for (int i = 0; i < weapon_vector->size(); i++) { //les sous categories
+        if (weapon_vector->at(i) != nullptr) {
+            if (weapon_vector->at(i)->isSelected) {
+                returnPtrs.push_back(weapon_vector->at(i));
+            }
+        }
+    }
+    for (int j = 0; j < weapon_vector->size(); j++) { //la sous categorie "all"
+        if (inputs->checkboxes_allUnits[j]) {
+            if (weapon_vector->at(j) != nullptr) {
+                if (!isAlreadyPresent(returnPtrs, weapon_vector->at(j))) {
+                    returnPtrs.push_back(weapon_vector->at(j));
+                }
+            }
+        }
+    }
+    return returnPtrs;
+}
 void GUI::navBarButtons(std::vector<Unit*> unit_vector[], std::vector<Weapon*> weapon_vector[], params* user_inputs) {
     if (ImGui::Button("search in Unit")) {
         user_inputs->search_unit_results = searchUnit(user_inputs->str1, unit_vector);
+
         user_inputs->show_unit_results = true;
     }
     ImGui::SameLine();
@@ -119,15 +142,25 @@ void GUI::navBarButtons(std::vector<Unit*> unit_vector[], std::vector<Weapon*> w
    
     ImGui::SameLine();
 
-    if (ImGui::Button("modify selected units")) {
+    if (ImGui::Button("modify selected")) {
         user_inputs->unitsToModify.clear();
+        user_inputs->ammunitionToModify.clear();
+
         user_inputs->unitsToModify = returnSelectedUnits(unit_vector, user_inputs);
+        user_inputs->ammunitionToModify = returnSelectedAmmo(weapon_vector, user_inputs);
         if (user_inputs->unitsToModify.size()) {
-            user_inputs->modify = true;
+            user_inputs->modify_units = true;
             user_inputs->old_e_value = -1;
         }
         else {
-            user_inputs->modify = false;
+            user_inputs->modify_units = false;
+        }
+        if (user_inputs->ammunitionToModify.size()) {
+            user_inputs->modify_ammo = true;
+            user_inputs->old_e_value_ammo = -1;
+        }
+        else {
+            user_inputs->modify_ammo = false;
         }
     }
    
@@ -169,9 +202,9 @@ void GUI::unitWindow(int unitcount, std::vector<Unit*> unit_vector[], std::vecto
     ack_type[27] = "Multirole";
 #pragma endregion
     
-    ImGui::Begin("Unit selector",x_button);
+    ImGui::Begin("Selector",x_button);
     
-    ImGui::InputTextWithHint("##unitNameBox","search unit here", user_inputs->str1, IM_ARRAYSIZE(user_inputs->str1));
+    ImGui::InputTextWithHint("##unitNameBox","type here", user_inputs->str1, IM_ARRAYSIZE(user_inputs->str1));
  
     navBarButtons(unit_vector, weapon_vector, user_inputs);
    
@@ -198,8 +231,11 @@ void GUI::unitWindow(int unitcount, std::vector<Unit*> unit_vector[], std::vecto
     if (ImGui::CollapsingHeader(("Manual Search Ammo"))) {
 
     }
-    if (user_inputs->modify) {
+    if (user_inputs->modify_units) {
         unitSelectedWindow(user_inputs,settings);
+    }
+    if (user_inputs->modify_ammo) {
+        ammoSelectedWindow(user_inputs, settings);
     }
     ImGui::End();
 }
@@ -211,6 +247,73 @@ void GUI::updateStatsView(params* user_inputs,int indexToSkip) {
             user_inputs->unitsToModify[i]->viewStats = false;
         }
     }
+}
+void GUI::ammoSelectedWindow(params* user_inputs,settings_t* settings) {
+
+    ImGui::Begin("Selected Ammunitions");
+
+    static int e = 0;
+    static float physical_damage = 0.f;
+    int size = user_inputs->ammunitionToModify.size();
+    ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "unitcount : %d",size );
+    ImGui::Separator();
+    ImGui::Checkbox("Show units", &user_inputs->show_units);
+    ImGui::Text("select unit to show info about it");
+
+    std::string id = "##"; //https://github.com/ocornut/imgui/blob/master/docs/FAQ.md#q-about-the-id-stack-system
+
+    if (user_inputs->show_ammo) {
+        for (int i = 0; i < size; i++) {
+
+            id.append(user_inputs->ammunitionToModify[i]->name);
+            ImGui::RadioButton(id.c_str(), &e, i);
+            ImGui::SameLine();
+            ImGui::Text("%s", user_inputs->ammunitionToModify[i]->name.c_str());
+        }
+
+    }
+    if ((e < size) && (e != user_inputs->old_e_value_ammo)) {
+        //display current stats in the box
+        physical_damage = user_inputs->ammunitionToModify[e]->physicalDamages;
+
+
+        user_inputs->old_e_value_ammo = e;
+    }
+    ImGui::Separator();
+    ImGui::Text("Modifications : ");
+    ImGui::Separator();
+
+    ImGui::InputFloat("PhysicalDamages", &physical_damage, (0.00F), (0.0F), "%.8f");
+        
+
+    ImGui::Separator();
+    //converting int to string
+    std::stringstream ss;
+    ss << size;
+    std::string str = ss.str();
+    //reusing id variable for different purpose
+    id = "update the ";
+    id.append(str);
+    id.append(" selected units");
+
+    int g = 2; //green
+    ImGui::PushID(g);
+    ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(g / 7.0f, 0.6f, 0.6f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(g / 7.0f, 0.7f, 0.7f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(g / 7.0f, 0.8f, 0.8f));
+
+    if (ImGui::Button(id.c_str())) {
+
+        ammo_data_t data = {};
+        data.new_PhysicalDamages = physical_damage;
+
+        writeData(user_inputs, nullptr, &data, *settings, false);
+    }
+    ImGui::PopStyleColor(3);
+    ImGui::PopID();
+
+    ImGui::Separator();
+    ImGui::End();
 }
 //window opened after button "modify" is pressed
 void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings) {
@@ -264,9 +367,10 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings) {
 
     ImGui::InputInt("command points", &cp);
 
+
     if (ImGui::CollapsingHeader("Fuel attributes")) {
         ImGui::InputInt("fuel capacity", &fuel);
-        ImGui::InputFloat("fuel time", &fuelTime);
+        ImGui::InputFloat("fuel time", &fuelTime, (0.00F), (0.0F), "%.8f");
     }
 
     if (ImGui::CollapsingHeader("Speed Attributes"))
@@ -276,7 +380,7 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings) {
     }
 
     if (ImGui::CollapsingHeader("Optical")) {
-        ImGui::InputFloat("optical strenght", &opticalStrenght);
+        ImGui::InputFloat("optical strenght", &opticalStrenght, (0.00F), (0.0F), "%.8f");
     }
         
     
@@ -297,7 +401,7 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings) {
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(g / 7.0f, 0.8f, 0.8f));
     if (ImGui::Button(id.c_str())) {
 
-        data_t data = { };
+        unit_data_t data = { };
         data.new_cp = cp;
         data.new_speed = speed;
         data.new_fuel = fuel;
@@ -305,7 +409,7 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings) {
         data.new_maxSpeed = maxspeed;
         data.new_speedBonus = speedBonus;
         data.new_optical_strenght = opticalStrenght;
-        writeData(user_inputs, data,*settings);
+        writeData(user_inputs, &data,nullptr,*settings,true);
     }
     ImGui::PopStyleColor(3);
     ImGui::PopID();
@@ -316,6 +420,7 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings) {
 void GUI::showSearchResults(std::vector<Unit*> units, std::vector<Unit*> unitToMod) {
 
     int size = units.size();
+   
     for (int i = 0; i < size; i++) {
         ImGui::Checkbox(("%s", units[i]->name).c_str(),&units[i]->isSelected);
         if (units[i]->isSelected) {
@@ -330,6 +435,7 @@ void GUI::showSearchResults(std::vector<Unit*> units, std::vector<Unit*> unitToM
 void GUI::showSearchResults(std::vector<Weapon*> ammunition, std::vector<Weapon*> ammunitionToMod) {
 
     int size = ammunition.size();
+ 
     for (int i = 0; i < size; i++) {
         ImGui::Checkbox(("%s", ammunition[i]->name).c_str(), &ammunition[i]->isSelected);
         if (ammunition[i]->isSelected) {
