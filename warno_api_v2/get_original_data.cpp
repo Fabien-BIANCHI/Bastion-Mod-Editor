@@ -6,19 +6,7 @@ bool is_file_exist(const char* fileName)
 	std::ifstream infile(fileName);
 	return infile.good();
 }
-/// <summary>
-/// this function read data and stores it in a big array
-/// </summary>
-/// <param name="array"></param>
-/// <returns></returns>
-int getDataFromFile(std::vector<Unit*> unit_vector[], settings_t* settings) {
-
-	char buffer[256];					//store the line read by fgets(), don't go under 200 some lines are long and it will cause issues for the line counters variables
-	int line_counter_relative = 1;		//count line but is relative to the export line of the unit	
-	int line_counter = 1;				//count all lines from the start to the end
-	int units_counter = 0;				//count the unit
-	
-	
+void updatePtrToNewFile(std::vector<Unit*> unit_vector[], settings_t* settings,std::string oldName,std::string newName) {
 	/*
 	1- checking if directories.txt is present (file containing the path to the mod)
 	2- completing the path hardcoded (not user related so its ok) with the original file (UniteDescriptor.ndf) and a new one (UniteDescriptor2.txt)
@@ -27,21 +15,16 @@ int getDataFromFile(std::vector<Unit*> unit_vector[], settings_t* settings) {
 	5- removing the original file
 	6- renaming the new file with the name of the original file
 	*/
-	bool is_directoriesFile = is_file_exist("directories.txt");
-	if (!is_directoriesFile) {
-		MessageBoxA(NULL, "Erreur, file directories not found", NULL, NULL);
-		exit(1);
-	}
-	
+	char buffer[256];
 	FILE* direct_f;
 	fopen_s(&direct_f, "directories.txt", "r");
 	if (direct_f) {
-		
+
 		if (fgets(buffer, sizeof(buffer), direct_f)) {
 			settings->original_path = (std::string)buffer;
 			settings->new_path = (std::string)buffer;
-			settings->original_path.append("\\GameData\\Generated\\Gameplay\\Gfx\\UniteDescriptor.ndf");
-			settings->new_path.append("\\GameData\\Generated\\Gameplay\\Gfx\\UniteDescriptor2.txt"); 
+			settings->original_path.append("\\GameData\\Generated\\Gameplay\\Gfx\\").append(oldName);
+			settings->new_path.append("\\GameData\\Generated\\Gameplay\\Gfx\\").append(newName);
 		}
 	}
 	else {
@@ -62,15 +45,38 @@ int getDataFromFile(std::vector<Unit*> unit_vector[], settings_t* settings) {
 		exit(1);
 	}
 
-	
+
 	fopen_s(&settings->hNew_file, settings->new_path.c_str(), "r");
 	if (!settings->hNew_file) {
 		MessageBox(NULL, "Error reading data from Unitdesc", NULL, NULL);
 		exit(1);
 	}
+}
+/// <summary>
+/// this function read data and stores it in a big array
+/// </summary>
+/// <param name="array"></param>
+/// <returns></returns>
+int getDataFromFile(std::vector<Unit*> unit_vector[],std::vector<Weapon*> weapons_vector[], settings_t* settings) {
+
+	char buffer[256];					//store the line read by fgets(), don't go under 200 some lines are long and it will cause issues for the line counters variables
+	int line_counter_relative = 1;		//count line but is relative to the export line of the unit	
+	int line_counter = 1;				//count all lines from the start to the end
+	int units_counter = 0;				//count the unit
 	
+	
+
+	bool is_directoriesFile = is_file_exist("directories.txt");
+	if (!is_directoriesFile) {
+		MessageBoxA(NULL, "Erreur, file directories not found", NULL, NULL);
+		exit(1);
+	}
+	
+	updatePtrToNewFile(unit_vector, settings, "UniteDescriptor.ndf", "UniteDescriptor2.txt");
+	settings->ud_original_path = settings->original_path;
+	settings->ud_new_path = settings->new_path;
 	std::string line;
-	//main loop, read every line
+	//unit_descriptor loop
 	while (fgets(buffer, sizeof(buffer), settings->hNew_file) != NULL) {
 
 		line = (std::string)buffer;
@@ -79,7 +85,26 @@ int getDataFromFile(std::vector<Unit*> unit_vector[], settings_t* settings) {
 		line_counter_relative++;
 		line_counter++;
 	}
+
 	fclose(settings->hNew_file);
+
+	line_counter_relative = 1;
+	line_counter = 1;
+	int weapon_counter = 0;
+	updatePtrToNewFile(unit_vector, settings, "Ammunition.ndf", "Ammunition2.txt");
+	settings->am_original_path = settings->original_path;
+	settings->am_new_path = settings->new_path;
+	//ammunition_descriptor loop
+	while (fgets(buffer, sizeof(buffer), settings->hNew_file) != NULL) {
+
+		line = (std::string)buffer;
+		readLine(line, &line_counter_relative, &line_counter, &weapon_counter, weapons_vector);
+
+		line_counter_relative++;
+		line_counter++;
+	}
+	fclose(settings->hNew_file);
+
 	
 	return units_counter;
 }
@@ -114,7 +139,7 @@ void readLine(std::string original_line, int* line_counter_relative,int* line_co
 	}
 	if (*line_counter > 4) {
 
-		Unit* current_unit = unit_vector->at((*units_counter) - 1); //-1 because the unit_counter start at 1
+		current_unit = unit_vector->at((*units_counter) - 1); //-1 because the unit_counter start at 1
 		if (!current_unit) 
 			return;
 		
@@ -189,4 +214,36 @@ void readLine(std::string original_line, int* line_counter_relative,int* line_co
 		}
 	}
 }
+std::string returnName(std::string str) {
 
+	int pos = str.find_first_of(' ');
+	if (pos == std::string::npos) {
+		MessageBox(NULL, "Error while reading Ammunition.ndf", NULL, NULL);
+		exit(1);
+	}
+	std::string new_string = str.substr(0, pos);
+	return new_string;
+}
+void readLine(std::string original_line, int* line_counter_relative, int* line_counter, int* weapon_counter, std::vector<Weapon*> weapon_vector[]) {
+
+	//removing the indentation
+	Weapon* current_weapon = nullptr;
+	std::string buffer = deleteSpacePrefix(original_line);
+	//every time export is found in a string, we reset the line_counter (relative offset) and we create a new instance of the unit class
+	if (strstr(original_line.c_str(), "Ammo_")) {
+		*line_counter_relative = 0;
+
+		current_weapon = new Weapon();
+		if (current_weapon) {
+			//saving the base line to which we will had offset later to find attribute for the unit
+			current_weapon->startLineNumber = *line_counter;
+			current_weapon->name = returnName(buffer);
+			weapon_vector->push_back(current_weapon);
+			*weapon_counter += 1;
+		}
+	}
+	if (*line_counter > 3) {
+		current_weapon = weapon_vector->at((*weapon_counter) - 1);
+		
+	}
+}

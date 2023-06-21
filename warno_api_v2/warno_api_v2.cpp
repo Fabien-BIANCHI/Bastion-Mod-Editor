@@ -9,6 +9,7 @@ static UINT                     g_ResizeWidth = 0, g_ResizeHeight = 0;
 static D3DPRESENT_PARAMETERS    g_d3dpp = {};
 
 std::vector<Unit*> allUnits;
+std::vector<Weapon*> allWeapons;
 
 //entry point
 int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow){
@@ -129,7 +130,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
         //Il indique si l'application a trouvé un chemin valide pour un dossier de mod.
         if (inputs.status == params::VALID) {  
             if (read_once) {
-                getDataFromFile(&allUnits,&settings);
+                getDataFromFile(&allUnits,&allWeapons,&settings);
                 int size = allUnits.size();
                 inputs.checkboxes_allUnits = new bool[size];
                 for (int i = 0; i < size; i++) { inputs.checkboxes_allUnits[i] = false; }
@@ -171,11 +172,17 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
             ResetDevice();
     }
 
-    if (remove(settings.original_path.c_str())) {//delete the old ndf file
-        MessageBox(NULL, "Fail removing", NULL, NULL);
+    if (remove(settings.ud_original_path.c_str())) {//delete the old ndf file
+        MessageBox(NULL, "Fail removing old UnitDescriptor.ndf", NULL, NULL);
     }
-    if (rename(settings.new_path.c_str(), settings.original_path.c_str())) { //rename the txt file 
-        MessageBox(NULL, "Fail renaming", NULL, NULL);
+    if (rename(settings.ud_new_path.c_str(), settings.ud_original_path.c_str())) { //rename the txt file 
+        MessageBox(NULL, "Fail renaming new UnitDesc to old UnitDesc name", NULL, NULL);
+    }
+    if (remove(settings.am_original_path.c_str())) {//delete the old ndf file
+        MessageBox(NULL, "Fail removing old Ammunition.ndf", NULL, NULL);
+    }
+    if (rename(settings.am_new_path.c_str(), settings.am_original_path.c_str())) { //rename the txt file 
+        MessageBox(NULL, "Fail renaming new Ammunition to old Ammuniton name", NULL, NULL);
     }
     delete[] inputs.checkboxes_allUnits;
 

@@ -59,6 +59,8 @@ typedef struct data
 typedef struct settings
 {
     std::string original_path, new_path;
+    std::string ud_original_path, ud_new_path;
+    std::string am_original_path, am_new_path;
     FILE* hNew_file;
 }settings_t;
 namespace GUI
@@ -78,8 +80,9 @@ bool CreateDeviceD3D(HWND hWnd);
 void CleanupDeviceD3D();
 void ResetDevice();
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-int getDataFromFile(std::vector<Unit*> unit_vector[], settings_t* settings);
+int getDataFromFile(std::vector<Unit*> unit_vector[],std::vector<Weapon*> weapons_vector[], settings_t* settings);
 void readLine(std::string line, int* line_counter,int* line_counter_all, int* units_counter, std::vector<Unit*> unit_vector[]);
+void readLine(std::string original_line, int* line_counter_relative, int* line_counter, int* weapon_counter, std::vector<Weapon*> weapon_vector[]);
 bool writeData(params* unitToMod, data_t data,settings_t settings);
 std::vector<Unit*> searchUnit(std::string str, std::vector<Unit*> unit_vector[]);
 bool is_file_exist(const char* fileName);

@@ -70,5 +70,6 @@ class Weapon {
 private:
 
 public:
-
+	std::string name;
+	int startLineNumber;
 };
