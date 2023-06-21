@@ -27,7 +27,7 @@ std::string customStr(std::string text, int* intVal,float* floatVal) {
         return s;
     }
 }
-
+//when calling, use the correct type according to the bool (last parametre)
 bool writeData(params* modPtrs,unit_data_t* unit_data,ammo_data_t* ammo_data,settings_t settings,bool isUnit) {
 
     /* File pointer to hold reference of input file */

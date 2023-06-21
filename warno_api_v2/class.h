@@ -27,10 +27,11 @@ class Weapon {
 private:
 
 public:
-	std::string name;
+	std::string name,family, ProjectileType;
 	int startLineNumber;
 	float physicalDamages;
 	int physicalDamagesLineOffset;
+	int ammo_type_id; //refer to the string array in unitWindow()
 
 	bool isSelected = false;
 };

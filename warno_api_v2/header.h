@@ -26,7 +26,10 @@
 #define MOTHERCOUNTRY_OFFSET 8
 #define ACKNOW_UNIT_TYPE_OFFSET 9
 #define TYPE_UNIT_FORMATION_OFFSET 10
+
 #define NUMBER_OF_ACKTYPE 28
+#define NUMBER_OF_AMMO_FAMILY 15
+#define NUMBER_OF_AMMO_TYPE 6
 
 //using this struct to pass data related to user choices
 struct params
@@ -77,6 +80,7 @@ typedef struct settings
 namespace GUI
 {
     void displayUnits(std::string filter, int unitcount, std::vector<Unit*> unit_vector[], int* counter, params* inputs);
+    void displayAmmo(std::vector<Weapon*> weapon_vector[], std::string familyNames[], std::string typeName[], params* inputs);
     void displayTreeNode(std::string ack[], int unitcount, std::vector<Unit*> unit_vector[], int* counter, params* inputs);
     std::vector<Unit*> returnSelectedUnits(std::vector<Unit*> unit_vector[], params* inputs);
     std::vector<Weapon*> returnSelectedAmmo(std::vector<Weapon*> unit_vector[], params* inputs);

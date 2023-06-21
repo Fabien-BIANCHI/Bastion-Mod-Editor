@@ -245,7 +245,23 @@ void readLine(std::string original_line, int* line_counter_relative, int* line_c
 	if (*line_counter > 3) {
 		current_weapon = weapon_vector->at((*weapon_counter) - 1);
 		
+		if (strstr(buffer.c_str(), "TDamageTypeRTTI(Family=")) {
+
+			int pos = buffer.find_last_of('"');
+			if ((pos > 60) && (pos != std::string::npos)) 
+				buffer = buffer.substr(60, pos - 60);
+			current_weapon->family = buffer;
+			//we don't need the line offset (rn at least) bc we are not supossed to mod this value
+		}
+		if (strstr(buffer.c_str(), "EProjectileType")) {
+
+			if (buffer.size() > 52)
+				buffer = buffer.substr(52, buffer.size() - 52);
+			current_weapon->ProjectileType = buffer;
+			//we don't need the line offset (rn at least) bc we are not supossed to mod this value
+		}
 		if (strstr(buffer.c_str(), "PhysicalDamages")) {
+
 			buffer = buffer.substr(36, 5);
 			std::istringstream iss(buffer);
 			iss >> current_weapon->physicalDamages;

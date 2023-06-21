@@ -24,6 +24,90 @@ void GUI::displayUnits(std::string filter, int unitcount, std::vector<Unit*> uni
     ImGui::Separator();
     ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "total count : %d", *counter);
 }
+void GUI::displayAmmo(std::vector<Weapon*> weapon_vector[],std::string familyNames[],std::string typeName[], params* inputs) {
+
+    int size = weapon_vector->size();
+    int nb_Obus = 0;
+    int nb_Bombe = 0;
+    int nb_Grenade = 0;
+    int nb_Artillerie = 0;
+    int nb_balle = 0;
+    int nb_GuidedMissile = 0;
+    std::string withCount;
+
+
+    for (int i = 0; i < NUMBER_OF_AMMO_FAMILY; i++) {
+        if (ImGui::TreeNode(familyNames[i].c_str())) {
+
+            ImGui::Separator();
+            int k;
+            for (k = 0; k < NUMBER_OF_AMMO_TYPE; k++) {
+               
+                typeName[k].append("\n");
+                for (int j = 0; j < size; j++) {
+                        
+                    if (strcmp(weapon_vector->at(j)->family.c_str(), familyNames[i].c_str()) == 0) {
+                        if (strcmp(weapon_vector->at(j)->ProjectileType.c_str(), typeName[k].c_str()) == 0) {
+                            
+                            weapon_vector->at(j)->ammo_type_id = k;
+                            if (k == 0) nb_Obus++;
+                            else if (k == 1) nb_Bombe++;
+                            else if (k == 2) nb_Grenade++;
+                            else if (k == 3) nb_Artillerie++;
+                            else if (k == 4) nb_balle++;
+                            else  nb_GuidedMissile++;
+                        }
+                    }
+                }
+            }
+            for (int m = 0; m < NUMBER_OF_AMMO_TYPE; m++) {
+                std::stringstream ss;
+
+                if (m == 0) {
+                    ss << nb_Obus;
+                    withCount = typeName[m].append(ss.str());
+                }
+
+                else if (m == 1) {
+                    ss << nb_Bombe;
+                    withCount = typeName[m].append(ss.str());
+                }
+                    
+                else if (m == 2) {
+                    ss << nb_Grenade;
+                    withCount = typeName[m].append(ss.str());
+                }
+                    
+                else if (m == 3) {
+                    ss << nb_Artillerie;
+                    withCount = typeName[m].append(ss.str());
+                }
+                    
+                else if (m == 4) {
+                    ss << nb_balle;
+                    withCount = typeName[m].append(ss.str());
+                }
+                    
+                else {
+                    ss << nb_GuidedMissile;
+                    withCount = typeName[m].append(ss.str());
+                }
+                    
+                if (ImGui::TreeNode(withCount.c_str())) {
+
+                    for (int j = 0; j < size; j++) {
+
+                       if(weapon_vector->at(j)->ammo_type_id == m)
+                            ImGui::Checkbox(("%s", weapon_vector->at(i)->name.c_str()), &weapon_vector->at(i)->isSelected);
+                            
+                    }
+                    ImGui::TreePop();
+                }
+            }
+            ImGui::TreePop();
+        }
+    }
+}
 void GUI::displayTreeNode(std::string ack[],int unitcount ,std::vector<Unit*> unit_vector[], int* counter, params* inputs) {
 
     for (int i = 0; i < NUMBER_OF_ACKTYPE; i++) {
@@ -170,7 +254,6 @@ void GUI::unitWindow(int unitcount, std::vector<Unit*> unit_vector[], std::vecto
 {
     int counter;
     std::string ack_type[NUMBER_OF_ACKTYPE]; //string array containing all "AcknowUnitType" 
-    
 #pragma region ack_type def 
     ack_type[0] = "SAM";
     ack_type[1] = "CanonAA";
@@ -201,7 +284,33 @@ void GUI::unitWindow(int unitcount, std::vector<Unit*> unit_vector[], std::vecto
     ack_type[26] = "Air_CAS";
     ack_type[27] = "Multirole";
 #pragma endregion
-    
+    std::string ammo_family[NUMBER_OF_AMMO_FAMILY];
+#pragma region ammo_family_def
+    ammo_family[0] = "ap";
+    ammo_family[1] = "he_autocanon";
+    ammo_family[2] = "ap_missile";
+    ammo_family[3] = "he";
+    ammo_family[4] = "howz_bombe";
+    ammo_family[5] = "balledca";
+    ammo_family[6] = "flamme";
+    ammo_family[7] = "fmballe";
+    ammo_family[8] = "superhe";
+    ammo_family[9] = "howz";
+    ammo_family[10] = "roquette_ap";
+    ammo_family[11] = "cluster_ap";
+    ammo_family[12] = "missile_he";
+    ammo_family[13] = "cac";
+    ammo_family[14] = "cluster";
+#pragma endregion
+    std::string ammo_type[NUMBER_OF_AMMO_TYPE];
+#pragma region ammo_family_def
+    ammo_type[0] = "Obus";
+    ammo_type[1] = "Bombe";
+    ammo_type[2] = "Grenade";
+    ammo_type[3] = "Artillerie";
+    ammo_type[4] = "Balle";
+    ammo_type[5] = "GuidedMissile";
+#pragma endregion
     ImGui::Begin("Selector",x_button);
     
     ImGui::InputTextWithHint("##unitNameBox","type here", user_inputs->str1, IM_ARRAYSIZE(user_inputs->str1));
@@ -229,7 +338,8 @@ void GUI::unitWindow(int unitcount, std::vector<Unit*> unit_vector[], std::vecto
         }
     }
     if (ImGui::CollapsingHeader(("Manual Search Ammo"))) {
-
+        
+        displayAmmo(weapon_vector, ammo_family,ammo_type, user_inputs);
     }
     if (user_inputs->modify_units) {
         unitSelectedWindow(user_inputs,settings);
