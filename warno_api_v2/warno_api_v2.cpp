@@ -136,7 +136,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
                 for (int i = 0; i < size; i++) { inputs.checkboxes_allUnits[i] = false; }
                 read_once = false;
             }
-            GUI::unitWindow(allUnits.size(), &allUnits, &inputs,&settings,&x_button);
+            GUI::unitWindow(allUnits.size(), &allUnits,&allWeapons, &inputs,&settings,&x_button);
         }
         else {
             GUI::directoryWindow(&inputs, &x_button);

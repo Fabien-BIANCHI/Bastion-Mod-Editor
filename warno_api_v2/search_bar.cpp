@@ -54,3 +54,29 @@ std::vector<Unit*> searchUnit(std::string str, std::vector<Unit*> unit_vector[])
 
 	return results;
 }
+//overloaded function
+std::vector<Weapon*> searchUnit(std::string str, std::vector<Weapon*> weapon_vetor[]) {
+
+	std::vector<Weapon*> results;
+	Weapon* current = nullptr;
+	for (int i = 0; i < weapon_vetor->size(); i++) {
+
+		current = weapon_vetor->at(i);
+
+		//the idea is to make the string from the user the same as the one in the array
+		//first, lets make both lowercase
+		std::string new_string = toLowerCase(str, true);
+		std::string name_lowercase = toLowerCase(current->name, false); // no need to set true, no spaces in name attribute
+
+		std::string new_string_w = removeUnderscore(new_string); //removing underscore
+		std::string name_lowercase_w = removeUnderscore(name_lowercase);
+
+
+		if (strstr(name_lowercase_w.c_str(), new_string_w.c_str())) {
+			results.push_back(current);
+		}
+
+	}
+
+	return results;
+}

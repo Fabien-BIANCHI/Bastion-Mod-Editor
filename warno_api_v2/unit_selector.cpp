@@ -52,6 +52,16 @@ bool isAlreadyPresent(std::vector<Unit*> _vector,Unit* test) {
     }
     return false;
 }
+bool isAlreadyPresent(std::vector<Weapon*> _vector, Weapon* test) {
+
+    int size = _vector.size();
+    for (int i = 0; i < size; i++) {
+        if (_vector[i] == test) {
+            return true;
+        }
+    }
+    return false;
+}
 /// <summary>
 /// return an vector with pointers toward the units to mod
 /// </summary>
@@ -80,27 +90,30 @@ std::vector<Unit*> GUI::returnSelectedUnits(std::vector<Unit*> unit_vector[], pa
     }
     return returnPtrs;
 }
-void GUI::navBarButtons(std::vector<Unit*> unit_vector[], params* user_inputs) {
-    if (ImGui::Button("search")) {
-        user_inputs->search_results = searchUnit(user_inputs->str1, unit_vector);
-        user_inputs->show_results = true;
+void GUI::navBarButtons(std::vector<Unit*> unit_vector[], std::vector<Weapon*> weapon_vector[], params* user_inputs) {
+    if (ImGui::Button("search in Unit")) {
+        user_inputs->search_unit_results = searchUnit(user_inputs->str1, unit_vector);
+        user_inputs->show_unit_results = true;
     }
     ImGui::SameLine();
-    if (user_inputs->show_results && (user_inputs->search_results.size() > 0)) {
-        if (ImGui::Button("hide results")) {
-            user_inputs->show_results = !user_inputs->show_results;
-        }
+    if (ImGui::Button("search in Ammunition")) {
+        user_inputs->search_ammunition_results = searchUnit(user_inputs->str1, weapon_vector);
+        user_inputs->show_ammunition_results = true;
     }
-    else if (!user_inputs->show_results && (user_inputs->search_results.size() > 0)) {
-        if (ImGui::Button("show results")) {
-            user_inputs->show_results = !user_inputs->show_results;
-        }
+    ImGui::SameLine();
+    if (ImGui::Button("hide results")) {
+        user_inputs->show_unit_results = false;
+        user_inputs->show_ammunition_results = false;
     }
+   
     ImGui::SameLine();
 
-    if (ImGui::Button("Unselect all units")) {
+    if (ImGui::Button("Unselect all")) {
         for (int i = 0; i < unit_vector->size(); i++) {
             unit_vector->at(i)->isSelected = false;
+        }
+        for (int j = 0; j < weapon_vector->size(); j++) {
+            weapon_vector->at(j)->isSelected = false;
         }
     }
    
@@ -120,7 +133,7 @@ void GUI::navBarButtons(std::vector<Unit*> unit_vector[], params* user_inputs) {
    
 }
 //main window
-void GUI::unitWindow(int unitcount, std::vector<Unit*> unit_vector[], params* user_inputs, settings_t* settings, bool* x_button)
+void GUI::unitWindow(int unitcount, std::vector<Unit*> unit_vector[], std::vector<Weapon*> weapon_vector[], params* user_inputs, settings_t* settings, bool* x_button)
 {
     int counter;
     std::string ack_type[NUMBER_OF_ACKTYPE]; //string array containing all "AcknowUnitType" 
@@ -160,14 +173,19 @@ void GUI::unitWindow(int unitcount, std::vector<Unit*> unit_vector[], params* us
     
     ImGui::InputTextWithHint("##unitNameBox","search unit here", user_inputs->str1, IM_ARRAYSIZE(user_inputs->str1));
  
-    navBarButtons(unit_vector, user_inputs);
+    navBarButtons(unit_vector, weapon_vector, user_inputs);
    
-    if (user_inputs->search_results.size()) {
-        if (user_inputs->show_results) {
-            showSearchResults(user_inputs->search_results,user_inputs->unitsToModify);
+    if (user_inputs->search_unit_results.size()) {
+        if (user_inputs->show_unit_results) {
+            showSearchResults(user_inputs->search_unit_results,user_inputs->unitsToModify);
         }
     }
-    if (ImGui::CollapsingHeader(("Manual Search"))) {
+    if (user_inputs->search_ammunition_results.size()) {
+        if (user_inputs->show_ammunition_results) {
+            showSearchResults(user_inputs->search_ammunition_results, user_inputs->ammunitionToModify);
+        }
+    }
+    if (ImGui::CollapsingHeader(("Manual Search Units"))) {
         
         displayTreeNode(ack_type, unitcount, unit_vector, &counter,user_inputs);
         
@@ -177,7 +195,9 @@ void GUI::unitWindow(int unitcount, std::vector<Unit*> unit_vector[], params* us
             ImGui::TreePop();
         }
     }
+    if (ImGui::CollapsingHeader(("Manual Search Ammo"))) {
 
+    }
     if (user_inputs->modify) {
         unitSelectedWindow(user_inputs,settings);
     }
@@ -306,5 +326,18 @@ void GUI::showSearchResults(std::vector<Unit*> units, std::vector<Unit*> unitToM
     }
     ImGui::Separator();
     ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "unitcount : %d", size);
+}
+void GUI::showSearchResults(std::vector<Weapon*> ammunition, std::vector<Weapon*> ammunitionToMod) {
 
+    int size = ammunition.size();
+    for (int i = 0; i < size; i++) {
+        ImGui::Checkbox(("%s", ammunition[i]->name).c_str(), &ammunition[i]->isSelected);
+        if (ammunition[i]->isSelected) {
+
+            if (!isAlreadyPresent(ammunitionToMod, ammunition[i]))
+                ammunitionToMod.push_back(ammunition[i]);
+        }
+    }
+    ImGui::Separator();
+    ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "weaponcount : %d", size);
 }
