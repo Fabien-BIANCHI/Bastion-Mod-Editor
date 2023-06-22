@@ -222,7 +222,12 @@ void readLine(std::string original_line, int* line_counter_relative,int* line_co
 }
 std::string returnName(std::string str) {
 
+	int startPos = str.find_first_of("Ammo_");
 	int pos = str.find_first_of(' ');
+	if (startPos != 0) {				//its an export
+		str = str.substr(7, 200);		//on enleve le "export "
+		pos = str.find_first_of(' ');
+	}
 	if (pos == std::string::npos) {
 		MessageBox(NULL, "Error while reading Ammunition.ndf", NULL, NULL);
 		exit(1);

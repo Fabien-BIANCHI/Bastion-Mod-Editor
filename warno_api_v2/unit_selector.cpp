@@ -542,15 +542,7 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings, std::stri
                 ImGui::Text(help);
                 ImGui::EndPopup();
             }
-                
-            if (user_inputs->is_auto_speed_bonus) {
-                ImGui::Text("With auto enabled, speedBonusOnRoad is calculated in a way");
-                ImGui::Text("that the on road speed remains the same independent of the");
-                ImGui::Text("value of maxSpeed AKA the off road speed.");
-                ImGui::Text("Furthermore, changing realRoadSpeed (UI variable only) will");
-                ImGui::Text("increase or decrease speedBonusOnRoad in a way that the on road");
-                ImGui::Text("speed will change proportionally to the change made to RealRoadSpeed");
-            }
+
             ImGui::InputInt("RealRoadSpeed", &realRoadSpeed);
         }
         ImGui::InputInt("MaxSpeed", &maxspeed);
