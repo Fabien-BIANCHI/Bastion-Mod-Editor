@@ -95,6 +95,11 @@ bool writeData(params* unitToMod,data_t data,settings_t settings) {
                 fputs(customStr("                    OpticalStrength = ", NULL,&data.new_optical_strenght).append("\n").c_str(), fTemp);
                 hit = true;
             }
+            if (count == (unitToMod->unitsToModify[i]->exportLineNumber + unitToMod->unitsToModify[i]->realRoadSpeedLineOffset)) {
+
+                fputs(customStr("                RealRoadSpeed = ", &data.new_realRoadSpeed, NULL).append("\n").c_str(), fTemp);
+                hit = true;
+            }
         }
         if (!hit) {
             fputs(buffer, fTemp);

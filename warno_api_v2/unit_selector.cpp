@@ -123,7 +123,7 @@ void GUI::navBarButtons(std::vector<Unit*> unit_vector[], params* user_inputs) {
 void GUI::unitWindow(int unitcount, std::vector<Unit*> unit_vector[], params* user_inputs, settings_t* settings, bool* x_button)
 {
     int counter;
-    std::string ack_type[NUMBER_OF_ACKTYPE]; //string array containing all "AcknowUnitType" 
+    std::string ack_type[NUMBER_OF_ACKTYPE]; //string array containing all "AcknowUnitType"
     
 #pragma region ack_type def 
     ack_type[0] = "SAM";
@@ -179,7 +179,7 @@ void GUI::unitWindow(int unitcount, std::vector<Unit*> unit_vector[], params* us
     }
 
     if (user_inputs->modify) {
-        unitSelectedWindow(user_inputs,settings);
+        unitSelectedWindow(user_inputs,settings, ack_type);
     }
     ImGui::End();
 }
@@ -193,7 +193,7 @@ void GUI::updateStatsView(params* user_inputs,int indexToSkip) {
     }
 }
 //window opened after button "modify" is pressed
-void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings) {
+void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings, std::string* ack_type) {
 
     ImGui::Begin("Selected Units");
 
@@ -205,8 +205,31 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings) {
     static int maxspeed = 0;
     static float speedBonus = 0.f;
     static float opticalStrenght = 0.f;
+    static int realRoadSpeed = 0;
     int size = user_inputs->unitsToModify.size();
-    
+
+    //les types d'unités dont on va afficher leur speedbonusonroad et pouvoir les modifier
+#pragma region speed_bonus_exists
+    std::vector<std::string> speed_bonus_exists = {
+        "SAM",
+        "CanonAA",
+        "GunArtillery",
+        "ArtShell",
+        "Reco",
+        "TankDestroyer",
+        "Command",
+        "Tank",
+        "Transport",
+        "TankDestroyerMissile",
+        "MLRS",
+        "Recon_Vehicle",
+        "CommandVehicle",
+        "Logistic",
+        "KaJaPa",
+    };
+#pragma endregion
+
+
     ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "unitcount : %d", size);
     ImGui::Separator();
     ImGui::Checkbox("Show units", &user_inputs->show_units);
@@ -227,6 +250,9 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings) {
         }
 
     }
+
+    if (e >= size) e = 0;
+
     if ((e < size) && (e != user_inputs->old_e_value)) {
         cp = user_inputs->unitsToModify[e]->cost; //index du radio button
         fuel = user_inputs->unitsToModify[e]->fuel;
@@ -234,10 +260,28 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings) {
         maxspeed = user_inputs->unitsToModify[e]->maxSpeed;
         speedBonus = user_inputs->unitsToModify[e]->speedBonus;
         opticalStrenght = user_inputs->unitsToModify[e]->opticalStrenght;
+        realRoadSpeed = user_inputs->unitsToModify[e]->realRoadSpeed;
 
         user_inputs->old_e_value = e;
     }
     
+    //Check if the highlighted unit contains speedBonusOnRoad by seeing if its type is in the array speed_bonus_exists[].
+    //If the ack type drawer of the highlighted unit is dropped down, then 
+    // "user_inputs->unitsToModify[e]->acknow_unit_type" will have "\n" at the end.
+    //That's why we compare with the strings in speed_bonus_exists, and also with those strings with "\n" appended.
+    bool unit_has_speed_bonus = false;
+    for (int i = 0; i < speed_bonus_exists.size(); i++) {
+        if (
+            (user_inputs->unitsToModify[e]->acknow_unit_type == speed_bonus_exists[i])
+            ||
+            (user_inputs->unitsToModify[e]->acknow_unit_type == speed_bonus_exists[i].append("\n"))
+            )
+        {
+            unit_has_speed_bonus = true;
+            break;
+        }
+    }
+
     ImGui::Separator();
     ImGui::Text("Modifications : ");
     ImGui::Separator();
@@ -251,8 +295,59 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings) {
 
     if (ImGui::CollapsingHeader("Speed Attributes"))
     {
+        if (unit_has_speed_bonus)
+        {
+            ImGui::Checkbox("Auto", &user_inputs->is_auto_speed_bonus);
+            ImGui::SameLine();
+            if (ImGui::Button("Help"))
+                ImGui::OpenPopup("auto_help");
+#pragma region auto_help def
+            const char help[] = "With auto enabled, speedBonusOnRoad is calculated in a way that\nthe on road speed remains the same independent of \nthe value of maxSpeed AKA the off road speed.\n\nFurthermore, changing realRoadSpeed (UI variable only) will increase \nor decrease speedBonusOnRoad in a way that the on road speed will change \nproportionally to the change made to RealRoadSpeed";
+#pragma endregion
+
+            if (ImGui::BeginPopup("auto_help"))
+            {
+                ImGui::Text(help);
+                ImGui::EndPopup();
+            }
+                
+            if (user_inputs->is_auto_speed_bonus) {
+                ImGui::Text("With auto enabled, speedBonusOnRoad is calculated in a way");
+                ImGui::Text("that the on road speed remains the same independent of the");
+                ImGui::Text("value of maxSpeed AKA the off road speed.");
+                ImGui::Text("Furthermore, changing realRoadSpeed (UI variable only) will");
+                ImGui::Text("increase or decrease speedBonusOnRoad in a way that the on road");
+                ImGui::Text("speed will change proportionally to the change made to RealRoadSpeed");
+            }
+            ImGui::InputInt("RealRoadSpeed", &realRoadSpeed);
+        }
         ImGui::InputInt("MaxSpeed", &maxspeed);
-        ImGui::InputFloat("SpeedBonusOnRoad", &speedBonus, (0.00F), (0.0F), "%.8f"); //no step value so no increment or decrement buttons. Shows 8 digits, sometimes what this displays is a bit off from the real value.
+        if (unit_has_speed_bonus)
+        {
+            int flag;
+            char description[30];
+            if (user_inputs->is_auto_speed_bonus) {
+                flag = ImGuiInputTextFlags_::ImGuiInputTextFlags_ReadOnly;
+                ImGui::Text("auto:");
+                ImGui::SameLine();
+                
+                //maintain the same on road speed even if the off road speed (maxspeed) changes.
+                //Formula: (oldMaxSpeed + (oldMaxSpeed*oldSpeedBonus)) = (newMaxSpeed + (newMaxSpeed * newSpeedBonus))
+                int oldMaxSpeed = user_inputs->unitsToModify[e]->maxSpeed;
+                float oldSpeedBonus = user_inputs->unitsToModify[e]->speedBonus;
+                speedBonus = ((oldMaxSpeed + oldMaxSpeed * oldSpeedBonus) - maxspeed) / maxspeed;
+
+                //Change the on road speed proportionally to the change of realRoadSpeed
+                //Formula: (maxSpeed + (maxSpeed * oldSpeedBonus)) * (newRealRoadSpeed/oldRealRoadSpeed) = (maxSpeed + (maxSpeed * newSpeedBonus))
+                //-> newSpeedBonus = (newRealRoadSpeed/oldRealRoadSpeed) * (1+oldSpeedBonus) - 1
+                float ratio = static_cast<float>(realRoadSpeed) / static_cast<float>(user_inputs->unitsToModify[e]->realRoadSpeed);
+                speedBonus = ratio * (1 + speedBonus) - 1;
+            }
+            else
+                flag = ImGuiInputTextFlags_::ImGuiInputTextFlags_None;
+            ImGui::InputFloat("SpeedBonusOnRoad", &speedBonus, (0.00F), (0.0F), "%.8f", flag);
+        }
+      
     }
 
     if (ImGui::CollapsingHeader("Optical")) {
@@ -285,6 +380,7 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings) {
         data.new_maxSpeed = maxspeed;
         data.new_speedBonus = speedBonus;
         data.new_optical_strenght = opticalStrenght;
+        data.new_realRoadSpeed = realRoadSpeed;
         writeData(user_inputs, data,*settings);
     }
     ImGui::PopStyleColor(3);

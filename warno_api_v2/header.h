@@ -47,12 +47,13 @@ struct params
     std::vector<Unit*> unitsToModify;   //this vector store the units that are going to be modify
     std::vector<Unit*> search_results;  //this vector store the results of the search bar as pointers
 
-    enum { VALID, EMPTY_STRING, PATH_NOT_FOUND, FILES_MISSING } status = EMPTY_STRING; 
+    enum { VALID, EMPTY_STRING, PATH_NOT_FOUND, FILES_MISSING } status = EMPTY_STRING;
+    bool is_auto_speed_bonus = false; //If true, changing the RealRoadSpeed of a unit automatically adjusts its SpeedBonusOnRoad according to a formula
 };
 //using this struct to store data to pass to the write function
 typedef struct data
 {
-    int new_cp, new_speed,new_fuel, new_maxSpeed;
+    int new_cp, new_speed,new_fuel, new_maxSpeed, new_realRoadSpeed;
     float new_fuelTime,new_optical_strenght, new_speedBonus;
 }data_t;
 //used to store paths
@@ -67,7 +68,7 @@ namespace GUI
     void displayTreeNode(std::string ack[], int unitcount, std::vector<Unit*> unit_vector[], int* counter, params* inputs);
     std::vector<Unit*> returnSelectedUnits(std::vector<Unit*> unit_vector[], params* inputs);
     void unitWindow(int unitcount, std::vector<Unit*> unit_vector[], params* user_inputs, settings_t* settings, bool* x_button);
-    void unitSelectedWindow(params* user_inputs,settings_t* settings);
+    void unitSelectedWindow(params* user_inputs,settings_t* settings, std::string* ack_type);
     void updateStatsView(params* user_inputs, int indexToSkip);
     void showSearchResults(std::vector<Unit*> units, std::vector<Unit*>  user_inputs);
     void navBarButtons(std::vector<Unit*> unit_vector[], params* unitToMod);
