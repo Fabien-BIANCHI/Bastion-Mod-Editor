@@ -95,11 +95,11 @@ void GUI::displayAmmo(std::vector<Weapon*> weapon_vector[],std::string familyNam
                     
                 if (ImGui::TreeNode(withCount.c_str())) {
 
-                    for (int j = 0; j < size; j++) {
-
-                       if(weapon_vector->at(j)->ammo_type_id == m)
-                            ImGui::Checkbox(("%s", weapon_vector->at(i)->name.c_str()), &weapon_vector->at(i)->isSelected);
-                            
+                    for (int h = 0; h < size; h++) {
+                        if (strcmp(weapon_vector->at(h)->family.c_str(), familyNames[i].c_str()) == 0) {
+                            if (weapon_vector->at(h)->ammo_type_id == m)
+                                ImGui::Checkbox(("%s", weapon_vector->at(h)->name.c_str()), &weapon_vector->at(h)->isSelected);
+                        }
                     }
                     ImGui::TreePop();
                 }
@@ -365,14 +365,13 @@ void GUI::ammoSelectedWindow(params* user_inputs,settings_t* settings) {
     static int e = 0;
     static float physical_damage = 0.f;
     int size = user_inputs->ammunitionToModify.size();
-    ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "unitcount : %d",size );
+    ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "weapons count : %d",size );
     ImGui::Separator();
-    ImGui::Checkbox("Show units", &user_inputs->show_units);
     ImGui::Text("select unit to show info about it");
 
     std::string id = "##"; //https://github.com/ocornut/imgui/blob/master/docs/FAQ.md#q-about-the-id-stack-system
 
-    if (user_inputs->show_ammo) {
+    
         for (int i = 0; i < size; i++) {
 
             id.append(user_inputs->ammunitionToModify[i]->name);
@@ -381,7 +380,7 @@ void GUI::ammoSelectedWindow(params* user_inputs,settings_t* settings) {
             ImGui::Text("%s", user_inputs->ammunitionToModify[i]->name.c_str());
         }
 
-    }
+    
     if ((e < size) && (e != user_inputs->old_e_value_ammo)) {
         //display current stats in the box
         physical_damage = user_inputs->ammunitionToModify[e]->physicalDamages;
@@ -440,9 +439,8 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings) {
     static float opticalStrenght = 0.f;
     int size = user_inputs->unitsToModify.size();
     
-    ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "unitcount : %d", size);
+    ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "units count : %d", size);
     ImGui::Separator();
-    ImGui::Checkbox("Show units", &user_inputs->show_units);
     ImGui::Text("select unit to show info about it");
     ImGui::Separator();
 
@@ -450,16 +448,16 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings) {
     
     std::string id = "##"; //https://github.com/ocornut/imgui/blob/master/docs/FAQ.md#q-about-the-id-stack-system
     
-    if (user_inputs->show_units) {
-        for (int i = 0; i < size; i++) {
 
-            id.append(user_inputs->unitsToModify[i]->name);
-            ImGui::RadioButton(id.c_str(), &e, i);
-            ImGui::SameLine();
-            ImGui::Text("%s", user_inputs->unitsToModify[i]->name.c_str());
-        }
+    for (int i = 0; i < size; i++) {
 
+        id.append(user_inputs->unitsToModify[i]->name);
+        ImGui::RadioButton(id.c_str(), &e, i);
+        ImGui::SameLine();
+        ImGui::Text("%s", user_inputs->unitsToModify[i]->name.c_str());
     }
+
+    
     if ((e < size) && (e != user_inputs->old_e_value)) {
         cp = user_inputs->unitsToModify[e]->cost; //index du radio button
         fuel = user_inputs->unitsToModify[e]->fuel;

@@ -40,8 +40,6 @@ struct params
     char str1[128]       = "";        
     char user_path[128]  = "";
 
-    bool show_units                  = true;     //show the  units in the "selected units" window
-    bool show_ammo                   = true;
     bool modify_units                = false;        //set to true when the user press "modify selected units"
     bool modify_ammo                 = false;
     bool show_unit_results           = false;  //set to true to see the result of the search bar
