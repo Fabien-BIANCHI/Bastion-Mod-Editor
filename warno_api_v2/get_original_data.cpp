@@ -167,12 +167,19 @@ void readLine(std::string original_line, int* line_counter_relative,int* line_co
 			current_unit->fuelTimeLineOffset = *line_counter_relative;
 		}
 		else if (strstr(buffer.c_str(), "MaxSpeed         =")) {
-			int maxspeed;
-			buffer = buffer.substr(19, 4);
-			std::istringstream iss(buffer);
-			iss >> maxspeed;
-			current_unit->maxSpeed = maxspeed;
-			current_unit->maxSpeedLineOffset = *line_counter_relative;
+			if (current_unit->maxSpeedLineOffset == 0)
+			{
+				int maxspeed;
+				buffer = buffer.substr(19, 4);
+				std::istringstream iss(buffer);
+				iss >> maxspeed;
+				current_unit->maxSpeed = maxspeed;
+				current_unit->maxSpeedLineOffset = *line_counter_relative;
+			}
+			else
+				//Certaines unités ont deux fois Maxspeed, et avec la même valeur pour les deux.
+				//On stocke l'index de la deuxième occurence de Maxspeed dans maxSpeedLineOffset2. 
+				current_unit->maxSpeedLineOffset2 = *line_counter_relative;
 		}
 		else if (strstr(buffer.c_str(), "SpeedBonusOnRoad =")) {
 			int speedBonus;

@@ -10,15 +10,20 @@ public:
 	bool viewStats = false;
 
 	std::string name,nationality,mother_country,acknow_unit_type,type_unit_formation;
-	int cost,costLineOffset;
-	int fuel, fuelTime, fuelLineOffset, fuelTimeLineOffset;
-	int maxSpeed, maxSpeedLineOffset;
+	int cost,costLineOffset = 0;
+	int fuel, fuelTime, fuelLineOffset = 0, fuelTimeLineOffset = 0;
+	int maxSpeed, maxSpeedLineOffset = 0;
 	float speedBonus;
-	int speedBonusLineOffset;
-	int opticalStrenghtLineOffset;
+	int speedBonusLineOffset = 0;
+	int opticalStrenghtLineOffset = 0;
 	float opticalStrenght;
 	int realRoadSpeed;
-	int realRoadSpeedLineOffset;
+	int realRoadSpeedLineOffset = 0;
+	int maxSpeedLineOffset2 = 0;
+
+	//int costLineOffset = 0, fuelLineOffset = 0, fuelTimeLineOffset = 0, maxSpeedLineOffset = 0, speedBonusLineOffset = 0,
+	//	opticalStrenghtLineOffset = 0, realRoadSpeedLineOffset = 0, maxSpeedLineOffset2 = 0;
+
 
 	Unit() {}
 	Unit(std::string _name) : name(_name) {}

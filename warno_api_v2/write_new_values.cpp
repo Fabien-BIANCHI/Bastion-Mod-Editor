@@ -63,6 +63,8 @@ bool writeData(params* unitToMod,data_t data,settings_t settings) {
 
         for (int i = 0; i < unitToMod->unitsToModify.size(); i++) {
             /* If current line is line to replace */
+            if (count == (unitToMod->unitsToModify[i]->exportLineNumber))
+                continue;
             if (count == (unitToMod->unitsToModify[i]->exportLineNumber + unitToMod->unitsToModify[i]->costLineOffset)) { //comand points
                 
                 fputs(customStr("                        (~/Resource_CommandPoints, ", &data.new_cp,NULL).append("),\n").c_str(), fTemp);
@@ -98,6 +100,11 @@ bool writeData(params* unitToMod,data_t data,settings_t settings) {
             if (count == (unitToMod->unitsToModify[i]->exportLineNumber + unitToMod->unitsToModify[i]->realRoadSpeedLineOffset)) {
 
                 fputs(customStr("                RealRoadSpeed = ", &data.new_realRoadSpeed, NULL).append("\n").c_str(), fTemp);
+                hit = true;
+            }
+            if (count == (unitToMod->unitsToModify[i]->exportLineNumber + unitToMod->unitsToModify[i]->maxSpeedLineOffset2)) {
+
+                fputs(customStr("                MaxSpeed         = ", &data.new_maxSpeed, NULL).append("\n").c_str(), fTemp);
                 hit = true;
             }
         }
