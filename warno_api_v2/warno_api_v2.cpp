@@ -83,7 +83,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
     // Our state
     params inputs = { };                //store user choices
     settings_t settings = { };          //paths
-    bool show_demo_window = true;       //doc
+    bool show_demo_window = false;       //doc
     bool read_once = false;             //only read the file once
     
     
