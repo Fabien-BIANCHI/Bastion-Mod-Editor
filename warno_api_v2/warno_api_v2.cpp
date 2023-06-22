@@ -13,10 +13,11 @@ std::vector<Weapon*> allWeapons;
 
 //entry point
 int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow){
-    
+    /*
     AllocConsole();
     FILE* f;
     freopen_s(&f, "CONOUT$", "w", stdout);
+    */
     
     // Create application window
     //ImGui_ImplWin32_EnableDpiAwareness();

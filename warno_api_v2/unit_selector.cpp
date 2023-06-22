@@ -343,7 +343,7 @@ void GUI::unitWindow(int unitcount, std::vector<Unit*> unit_vector[], std::vecto
         displayAmmo(weapon_vector, ammo_family,ammo_type, user_inputs);
     }
     if (user_inputs->modify_units) {
-        unitSelectedWindow(user_inputs,settings);
+        unitSelectedWindow(user_inputs,settings, ack_type);
     }
     if (user_inputs->modify_ammo) {
         ammoSelectedWindow(user_inputs, settings);
@@ -428,6 +428,7 @@ void GUI::ammoSelectedWindow(params* user_inputs,settings_t* settings) {
 //window opened after button "modify" is pressed
 void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings, std::string* ack_type) {
 
+
     ImGui::Begin("Selected Units");
 
     static int cp = 0;
@@ -479,8 +480,6 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings, std::stri
         ImGui::RadioButton(id.c_str(), &e, i);
         ImGui::SameLine();
         ImGui::Text("%s", user_inputs->unitsToModify[i]->name.c_str());
-    }
-
     }
 
     if (e >= size) e = 0;

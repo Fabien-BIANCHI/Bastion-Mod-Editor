@@ -114,14 +114,14 @@ bool writeData(params* modPtrs,unit_data_t* unit_data,ammo_data_t* ammo_data,set
                     fputs(customStr("                    OpticalStrength = ", NULL, &unit_data->new_optical_strenght).append("\n").c_str(), fTemp);
                     hit = true;
                 }
+                if (count == (modPtrs->unitsToModify[i]->exportLineNumber + modPtrs->unitsToModify[i]->realRoadSpeedLineOffset)) {
+
+                    fputs(customStr("                RealRoadSpeed = ", &unit_data->new_realRoadSpeed, NULL).append("\n").c_str(), fTemp);
+                    hit = true;
+                }
             }
             if (!hit) {
                 fputs(buffer, fTemp);
-            }
-            if (count == (unitToMod->unitsToModify[i]->exportLineNumber + unitToMod->unitsToModify[i]->realRoadSpeedLineOffset)) {
-
-                fputs(customStr("                RealRoadSpeed = ", &data.new_realRoadSpeed, NULL).append("\n").c_str(), fTemp);
-                hit = true;
             }
         }
         else //ammo
