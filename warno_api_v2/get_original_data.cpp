@@ -212,6 +212,12 @@ void readLine(std::string original_line, int* line_counter_relative,int* line_co
 			iss >> current_unit->opticalStrenght;
 			current_unit->opticalStrenghtLineOffset = *line_counter_relative;
 		}
+		else if (strstr(buffer.c_str(), "RealRoadSpeed =")) {
+			buffer = buffer.substr(16, 4);
+			std::istringstream iss(buffer);
+			iss >> current_unit->realRoadSpeed;
+			current_unit->realRoadSpeedLineOffset = *line_counter_relative;
+		}
 	}
 }
 std::string returnName(std::string str) {

@@ -17,6 +17,8 @@ public:
 	int speedBonusLineOffset;
 	int opticalStrenghtLineOffset;
 	float opticalStrenght;
+	int realRoadSpeed;
+	int realRoadSpeedLineOffset;
 
 	Unit() {}
 	Unit(std::string _name) : name(_name) {}

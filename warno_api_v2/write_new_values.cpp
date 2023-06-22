@@ -118,6 +118,11 @@ bool writeData(params* modPtrs,unit_data_t* unit_data,ammo_data_t* ammo_data,set
             if (!hit) {
                 fputs(buffer, fTemp);
             }
+            if (count == (unitToMod->unitsToModify[i]->exportLineNumber + unitToMod->unitsToModify[i]->realRoadSpeedLineOffset)) {
+
+                fputs(customStr("                RealRoadSpeed = ", &data.new_realRoadSpeed, NULL).append("\n").c_str(), fTemp);
+                hit = true;
+            }
         }
         else //ammo
         {
