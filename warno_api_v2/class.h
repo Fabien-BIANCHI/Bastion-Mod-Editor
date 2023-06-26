@@ -1,5 +1,30 @@
 #pragma once
+class Ammo {
+private:
 
+public:
+	std::string name, family, ProjectileType;
+	int startLineNumber;
+	float physicalDamages;
+	int physicalDamagesLineOffset;
+	int ammo_type_id; //refer to the string array in unitWindow()
+
+	std::string weapon1, weapon2, weapon3;
+	int numberOfWeapons;
+
+	bool isSelected = false;
+
+	Ammo() {}
+	Ammo(std::string _name) : name(_name) {}
+};
+
+class Weapons {
+private:
+
+public:
+	std::vector<Ammo*> ammos;
+	Weapons() {}
+};
 class Unit {
 private:
 
@@ -20,20 +45,10 @@ public:
 	int realRoadSpeed;
 	int realRoadSpeedLineOffset;
 
+	Weapons* guns;
+
 	Unit() {}
 	Unit(std::string _name) : name(_name) {}
 	~Unit() {}
 	
-};
-class Weapon {
-private:
-
-public:
-	std::string name,family, ProjectileType;
-	int startLineNumber;
-	float physicalDamages;
-	int physicalDamagesLineOffset;
-	int ammo_type_id; //refer to the string array in unitWindow()
-
-	bool isSelected = false;
 };

@@ -57,7 +57,7 @@ void updatePtrToNewFile(std::vector<Unit*> unit_vector[], settings_t* settings,s
 /// </summary>
 /// <param name="array"></param>
 /// <returns></returns>
-int getDataFromFile(std::vector<Unit*> unit_vector[],std::vector<Weapon*> weapons_vector[], settings_t* settings) {
+int getDataFromFile(std::vector<Unit*> unit_vector[],std::vector<Ammo*> ammo_vector[], settings_t* settings) {
 
 	char buffer[256];					//store the line read by fgets(), don't go under 200 some lines are long and it will cause issues for the line counters variables
 	int line_counter_relative = 1;		//count line but is relative to the export line of the unit	
@@ -80,7 +80,7 @@ int getDataFromFile(std::vector<Unit*> unit_vector[],std::vector<Weapon*> weapon
 	while (fgets(buffer, sizeof(buffer), settings->hNew_file) != NULL) {
 
 		line = (std::string)buffer;
-		readLine(line, &line_counter_relative,&line_counter, &units_counter, unit_vector);
+		readLine(line, &line_counter_relative,&line_counter, &units_counter,nullptr, unit_vector,nullptr,1);
 
 		line_counter_relative++;
 		line_counter++;
@@ -90,15 +90,34 @@ int getDataFromFile(std::vector<Unit*> unit_vector[],std::vector<Weapon*> weapon
 
 	line_counter_relative = 1;
 	line_counter = 1;
-	int weapon_counter = 0;
+	int ammo_counter = 0;
 	updatePtrToNewFile(unit_vector, settings, "Ammunition.ndf", "Ammunition2.txt");
-	settings->am_original_path = settings->original_path;
-	settings->am_new_path = settings->new_path;
+	settings->wd_original_path = settings->original_path;
+	settings->wd_new_path = settings->new_path;
 	//ammunition_descriptor loop
 	while (fgets(buffer, sizeof(buffer), settings->hNew_file) != NULL) {
 
 		line = (std::string)buffer;
-		readLine(line, &line_counter_relative, &line_counter, &weapon_counter, weapons_vector);
+		readLine(line, &line_counter_relative, &line_counter, &ammo_counter, ammo_vector);
+
+		line_counter_relative++;
+		line_counter++;
+	}
+	fclose(settings->hNew_file);
+
+	line_counter_relative = 1;
+	line_counter = 1;
+	int weapon_counter = 0;
+	updatePtrToNewFile(unit_vector, settings, "WeaponDescriptor.ndf", "WeaponDescriptor2.txt");
+	settings->am_original_path = settings->original_path;
+	settings->am_new_path = settings->new_path;
+
+	int current_unit_index;
+	//ammunition_descriptor loop
+	while (fgets(buffer, sizeof(buffer), settings->hNew_file) != NULL) {
+
+		line = (std::string)buffer;
+		readLine(line, &line_counter_relative, &line_counter, &weapon_counter,&current_unit_index, unit_vector,ammo_vector,2);
 
 		line_counter_relative++;
 		line_counter++;
@@ -119,104 +138,152 @@ std::string deleteSpacePrefix(std::string original){
 	std::string new_string = original.substr(i,100);
 	return new_string;
 }
+Ammo* findAmmoPtrWithName(std::vector<Ammo*> vector[], std::string name) {
+
+	int size = vector->size();
+	int pos = name.rfind('\n');
+	name = name.substr(0, pos);
+	for (int i = 0; i < size; i++) {
+		if (strstr(vector->at(i)->name.c_str(), name.c_str())) {
+			return vector->at(i);
+		}
+	}
+	return nullptr;
+}
 //read every line and checking if the line contains data that we need to store in our unit instances
-void readLine(std::string original_line, int* line_counter_relative,int* line_counter, int* units_counter, std::vector<Unit*> unit_vector[]) {
+//forUnit is 1 for unitReadline(), 2 for weapon descriptor read
+//index is used to find the unitptr every looop
+void readLine(std::string original_line, int* line_counter_relative,int* line_counter, int* units_counter, int* index,
+	std::vector<Unit*> unit_vector[], std::vector<Ammo*> ammo_vector[], int forUnit) {
 
 	//removing the indentation
 	Unit* current_unit = nullptr;
 	std::string buffer = deleteSpacePrefix(original_line);
-	//every time export is found in a string, we reset the line_counter (relative offset) and we create a new instance of the unit class
-	if (strstr(original_line.c_str(), "export")) {
-		*line_counter_relative = 0;
+	if (forUnit == 1) {
+		//every time export is found in a string, we reset the line_counter (relative offset) and we create a new instance of the unit class
+		if (strstr(original_line.c_str(), "export")) {
+			*line_counter_relative = 0;
 
-		current_unit = new Unit();
-		if (current_unit) {
-			//saving the base line to which we will had offset later to find attribute for the unit
-			current_unit->exportLineNumber = *line_counter;
-			unit_vector->push_back(current_unit);
-			*units_counter += 1;
+			current_unit = new Unit();
+			if (current_unit) {
+				//saving the base line to which we will had offset later to find attribute for the unit
+				current_unit->exportLineNumber = *line_counter;
+				unit_vector->push_back(current_unit);
+				*units_counter += 1;
+			}
+		}
+		if (*line_counter > 4) {
+
+			current_unit = unit_vector->at((*units_counter) - 1); //-1 because the unit_counter start at 1
+			if (!current_unit)
+				return;
+
+			switch (*line_counter_relative) 	//at the start of a descriptor for a unit, its always the same so we can use fixed size offset
+			{
+			case DEBUGNAME_OFFSET:
+				buffer = buffer.substr(21, 100);	//cutting the string at index 21
+				current_unit->name = buffer;		//storing into the unit
+				return;
+			case NATIONALITY_OFFSET:
+				buffer = buffer.substr(48, 100);
+				current_unit->nationality = buffer;
+				return;
+			case MOTHERCOUNTRY_OFFSET:
+				buffer = buffer.substr(35, 100);
+				current_unit->mother_country = buffer;
+				return;
+			case ACKNOW_UNIT_TYPE_OFFSET:
+				buffer = buffer.substr(53, 100);
+				current_unit->acknow_unit_type = buffer;
+				return;
+			case TYPE_UNIT_FORMATION_OFFSET:
+				buffer = buffer.substr(35, 100);
+				current_unit->type_unit_formation = buffer;
+				return;
+			default:
+				break;
+			}
+			//the commands points is not at a fixed offset in the export, so we have to find it by looking for a substring
+			//we extract the cost by converting from string to int and we keep the line offset for future purpose
+			if (strstr(buffer.c_str(), "~/Resource_CommandPoints")) {
+				int cp;
+				buffer = buffer.substr(27, 4);	//on coupe le debut 
+				std::istringstream iss(buffer); //convert string to int
+				iss >> cp;
+				current_unit->cost = cp;
+				current_unit->costLineOffset = *line_counter_relative;
+			}
+
+			else if (strstr(buffer.c_str(), "FuelCapacity     = ")) {
+				buffer = buffer.substr(19, 4);
+				std::istringstream iss(buffer);
+				iss >> current_unit->fuel;
+				current_unit->fuelLineOffset = *line_counter_relative;
+			}
+			else if (strstr(buffer.c_str(), "FuelMoveDuration = ")) {
+				buffer = buffer.substr(19, 4);
+				std::istringstream iss(buffer);
+				iss >> current_unit->fuelTime;
+				current_unit->fuelTimeLineOffset = *line_counter_relative;
+			}
+			else if (strstr(buffer.c_str(), "MaxSpeed         =")) {
+				int maxspeed;
+				buffer = buffer.substr(19, 4);
+				std::istringstream iss(buffer);
+				iss >> maxspeed;
+				current_unit->maxSpeed = maxspeed;
+				current_unit->maxSpeedLineOffset = *line_counter_relative;
+			}
+			else if (strstr(buffer.c_str(), "SpeedBonusOnRoad =")) {
+				int speedBonus;
+				buffer = buffer.substr(19, 18);	//on coupe le debut, et on prend au maximum 17 chiffres du float
+				float speedBonus_f = std::stof(buffer);; //convert string to float
+				current_unit->speedBonus = speedBonus_f;
+				current_unit->speedBonusLineOffset = *line_counter_relative;
+			}
+			else if (strstr(buffer.c_str(), "OpticalStrength = ")) {
+				buffer = buffer.substr(18, 4);
+				std::istringstream iss(buffer);
+				iss >> current_unit->opticalStrenght;
+				current_unit->opticalStrenghtLineOffset = *line_counter_relative;
+			}
+			else if (strstr(buffer.c_str(), "RealRoadSpeed =")) {
+				buffer = buffer.substr(16, 4);
+				std::istringstream iss(buffer);
+				iss >> current_unit->realRoadSpeed;
+				current_unit->realRoadSpeedLineOffset = *line_counter_relative;
+			}
 		}
 	}
-	if (*line_counter > 4) {
+	else if (forUnit == 2) {
+		int size = unit_vector->size();
+		int pos;
+		if (strstr(original_line.c_str(), "export")) {
 
-		current_unit = unit_vector->at((*units_counter) - 1); //-1 because the unit_counter start at 1
-		if (!current_unit) 
-			return;
-		
-		switch (*line_counter_relative) 	//at the start of a descriptor for a unit, its always the same so we can use fixed size offset
-		{
-		case DEBUGNAME_OFFSET: 
-			buffer = buffer.substr(21, 100);	//cutting the string at index 21
-			current_unit->name = buffer;		//storing into the unit
-			return;
-		case NATIONALITY_OFFSET:
-			buffer = buffer.substr(48, 100);
-			current_unit->nationality = buffer;
-			return;
-		case MOTHERCOUNTRY_OFFSET:
-			buffer = buffer.substr(35, 100);
-			current_unit->mother_country = buffer;
-			return;
-		case ACKNOW_UNIT_TYPE_OFFSET:
-			buffer = buffer.substr(53, 100);
-			current_unit->acknow_unit_type = buffer;
-			return;
-		case TYPE_UNIT_FORMATION_OFFSET:
-			buffer = buffer.substr(35, 100);
-			current_unit->type_unit_formation = buffer;
-			return;
-		default:
-			break;
+			*line_counter_relative = 0;
+			buffer = buffer.substr(23, 100);
+			int pos = buffer.find_first_of(' ');
+			buffer = buffer.substr(0, pos);
+			for (int i = 0; i < size; i++) {
+				
+				if (strstr(unit_vector->at(i)->name.c_str(),buffer.c_str())) {
+					unit_vector->at(i)->guns = new Weapons();
+					*index = i;
+				}
+			}
 		}
-		//the commands points is not at a fixed offset in the export, so we have to find it by looking for a substring
-		//we extract the cost by converting from string to int and we keep the line offset for future purpose
-		if (strstr(buffer.c_str(), "~/Resource_CommandPoints")) {
-			int cp;
-			buffer = buffer.substr(27, 4);	//on coupe le debut 
-			std::istringstream iss(buffer); //convert string to int
-			iss >> cp;
-			current_unit->cost = cp;
-			current_unit->costLineOffset = *line_counter_relative;
-		}
+		if (*line_counter > 3) {
+			current_unit = unit_vector->at(*index);
+			if (current_unit) {
 
-		else if (strstr(buffer.c_str(), "FuelCapacity     = ")) {
-			buffer = buffer.substr(19, 4);
-			std::istringstream iss(buffer);
-			iss >> current_unit->fuel;
-			current_unit->fuelLineOffset = *line_counter_relative;
-		}
-		else if (strstr(buffer.c_str(), "FuelMoveDuration = ")) {
-			buffer = buffer.substr(19, 4);
-			std::istringstream iss(buffer);
-			iss >> current_unit->fuelTime;
-			current_unit->fuelTimeLineOffset = *line_counter_relative;
-		}
-		else if (strstr(buffer.c_str(), "MaxSpeed         =")) {
-			int maxspeed;
-			buffer = buffer.substr(19, 4);
-			std::istringstream iss(buffer);
-			iss >> maxspeed;
-			current_unit->maxSpeed = maxspeed;
-			current_unit->maxSpeedLineOffset = *line_counter_relative;
-		}
-		else if (strstr(buffer.c_str(), "SpeedBonusOnRoad =")) {
-			int speedBonus;
-			buffer = buffer.substr(19, 18);	//on coupe le debut, et on prend au maximum 17 chiffres du float
-			float speedBonus_f = std::stof(buffer);; //convert string to float
-			current_unit->speedBonus = speedBonus_f;
-			current_unit->speedBonusLineOffset = *line_counter_relative;
-		}
-		else if (strstr(buffer.c_str(), "OpticalStrength = ")) {
-			buffer = buffer.substr(18, 4);
-			std::istringstream iss(buffer);
-			iss >> current_unit->opticalStrenght;
-			current_unit->opticalStrenghtLineOffset = *line_counter_relative;
-		}
-		else if (strstr(buffer.c_str(), "RealRoadSpeed =")) {
-			buffer = buffer.substr(16, 4);
-			std::istringstream iss(buffer);
-			iss >> current_unit->realRoadSpeed;
-			current_unit->realRoadSpeedLineOffset = *line_counter_relative;
+				if (strstr(buffer.c_str(), "Ammunition")) {
+					buffer = buffer.substr(40, 100);
+					Ammo* ptr = findAmmoPtrWithName(ammo_vector, buffer);
+					if (ptr)
+						current_unit->guns->ammos.push_back(ptr);
+
+				}
+			}
 		}
 	}
 }
@@ -235,16 +302,16 @@ std::string returnName(std::string str) {
 	std::string new_string = str.substr(0, pos);
 	return new_string;
 }
-void readLine(std::string original_line, int* line_counter_relative, int* line_counter, int* weapon_counter, std::vector<Weapon*> weapon_vector[]) {
+void readLine(std::string original_line, int* line_counter_relative, int* line_counter, int* weapon_counter, std::vector<Ammo*> weapon_vector[]) {
 
 	//removing the indentation
-	Weapon* current_weapon = nullptr;
+	Ammo* current_weapon = nullptr;
 	std::string buffer = deleteSpacePrefix(original_line);
 	//every time export is found in a string, we reset the line_counter (relative offset) and we create a new instance of the unit class
 	if (strstr(original_line.c_str(), "Ammo_")) {
 		*line_counter_relative = 0;
 
-		current_weapon = new Weapon();
+		current_weapon = new Ammo();
 		if (current_weapon) {
 			//saving the base line to which we will had offset later to find attribute for the unit
 			current_weapon->startLineNumber = *line_counter;

@@ -8,23 +8,86 @@
 /// <param name="_array"></param>
 /// <param name="counter"></param>
 /// <param name="inputs"></param>
-void GUI::displayUnits(std::string filter, int unitcount, std::vector<Unit*> unit_vector[], int* counter, params* inputs) {
+void GUI::displayUnits(std::string filter, int unitcount, std::vector<Unit*> unit_vector[], int* counter, params* inputs,settings_t* settings ) {
 
     *counter = 0;
     for (int i = 0; i < unitcount; i++) {
         if (strcmp(filter.c_str(), "") == 0) { //all units
             ImGui::Checkbox(("%s", unit_vector->at(i)->name.c_str()), &inputs->checkboxes_allUnits[i]);
+            ImGui::SameLine();
+            
+            ImGui::Button("Show Weapons");
+            if (ImGui::IsItemHovered() && ImGui::BeginTooltip()) {
+
+                displayGuns(unit_vector->at(i));
+                ImGui::EndTooltip();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Mod weapons")) {
+
+                inputs->ammunitionToModify.clear();
+                if (!unit_vector->at(i)->guns->ammos.size() || !unit_vector->at(i)->guns) { printf("Invalid Data"); }
+                inputs->ammunitionToModify = displayGuns(unit_vector->at(i));
+                inputs->modify_ammo = true;
+            }
             (*counter) += 1;
         }
         else if (strcmp(filter.c_str(), unit_vector->at(i)->acknow_unit_type.c_str()) == 0) { //par filtre
             ImGui::Checkbox(("%s", unit_vector->at(i)->name.c_str()),&unit_vector->at(i)->isSelected);
+            ImGui::SameLine();
+            
+            ImGui::Button("Show Weapons");
+            if (ImGui::IsItemHovered() && ImGui::BeginTooltip()) {
+
+                displayGuns(unit_vector->at(i));
+                ImGui::EndTooltip();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Mod weapons")) {
+
+                inputs->ammunitionToModify.clear();
+                if (!unit_vector->at(i)->guns->ammos.size() || !unit_vector->at(i)->guns) { printf("Invalid Data"); }
+                inputs->ammunitionToModify = unit_vector->at(i)->guns->ammos;
+                inputs->modify_ammo = true;
+            }
             (*counter) += 1;
         }
     }
     ImGui::Separator();
     ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "total count : %d", *counter);
 }
-void GUI::displayAmmo(std::vector<Weapon*> weapon_vector[],std::string familyNames[],std::string typeName[], params* inputs) {
+std::vector<Ammo*> GUI::displayGuns(Unit* currentUnit) {
+
+
+    std::string str;
+    std::vector<Ammo*> AmmoPtrForUnit;
+    Weapons* gunPtrForUnit;
+    if (currentUnit) {
+        gunPtrForUnit = currentUnit->guns;
+        if (gunPtrForUnit) {
+            AmmoPtrForUnit = gunPtrForUnit->ammos;
+            if (AmmoPtrForUnit.size() != 0) {
+
+                for (int j = 0; j < AmmoPtrForUnit.size(); j++) {
+
+                    str = AmmoPtrForUnit.at(j)->name;
+                    ImGui::Text(str.c_str());
+                }
+            }
+            else {
+                printf("ammoPtr is empty");
+            }
+        }
+        else {
+            printf("gunPtr is nullptr");
+        }
+    }
+    else {
+        printf("currentUnit is nullptr");
+    }
+    return AmmoPtrForUnit;
+}
+void GUI::displayAmmo(std::vector<Ammo*> weapon_vector[],std::string familyNames[],std::string typeName[], params* inputs) {
 
     int size = weapon_vector->size();
     int nb_Obus = 0;
@@ -108,14 +171,14 @@ void GUI::displayAmmo(std::vector<Weapon*> weapon_vector[],std::string familyNam
         }
     }
 }
-void GUI::displayTreeNode(std::string ack[],int unitcount ,std::vector<Unit*> unit_vector[], int* counter, params* inputs) {
+void GUI::displayTreeNode(std::string ack[],int unitcount ,std::vector<Unit*> unit_vector[], int* counter, params* inputs, settings_t* settings) {
 
     for (int i = 0; i < NUMBER_OF_ACKTYPE; i++) {
 
         if (ImGui::TreeNode(ack[i].c_str())) { 
             ack[i].append("\n"); 
             ImGui::Separator();
-            displayUnits(ack[i], unitcount, unit_vector, counter,inputs);
+            displayUnits(ack[i], unitcount, unit_vector, counter,inputs,settings);
             ImGui::TreePop();
         }
     }
@@ -136,7 +199,7 @@ bool isAlreadyPresent(std::vector<Unit*> _vector,Unit* test) {
     }
     return false;
 }
-bool isAlreadyPresent(std::vector<Weapon*> _vector, Weapon* test) {
+bool isAlreadyPresent(std::vector<Ammo*> _vector, Ammo* test) {
 
     int size = _vector.size();
     for (int i = 0; i < size; i++) {
@@ -174,9 +237,9 @@ std::vector<Unit*> GUI::returnSelectedUnits(std::vector<Unit*> unit_vector[], pa
     }
     return returnPtrs;
 }
-std::vector<Weapon*> GUI::returnSelectedAmmo(std::vector<Weapon*> weapon_vector[], params* inputs) {
+std::vector<Ammo*> GUI::returnSelectedAmmo(std::vector<Ammo*> weapon_vector[], params* inputs) {
 
-    std::vector<Weapon*> returnPtrs;
+    std::vector<Ammo*> returnPtrs;
 
     for (int i = 0; i < weapon_vector->size(); i++) { //les sous categories
         if (weapon_vector->at(i) != nullptr) {
@@ -196,7 +259,7 @@ std::vector<Weapon*> GUI::returnSelectedAmmo(std::vector<Weapon*> weapon_vector[
     }
     return returnPtrs;
 }
-void GUI::navBarButtons(std::vector<Unit*> unit_vector[], std::vector<Weapon*> weapon_vector[], params* user_inputs) {
+void GUI::navBarButtons(std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vector[], params* user_inputs) {
     if (ImGui::Button("search in Unit")) {
         user_inputs->search_unit_results = searchUnit(user_inputs->str1, unit_vector);
 
@@ -250,7 +313,7 @@ void GUI::navBarButtons(std::vector<Unit*> unit_vector[], std::vector<Weapon*> w
    
 }
 //main window
-void GUI::unitWindow(int unitcount, std::vector<Unit*> unit_vector[], std::vector<Weapon*> weapon_vector[], params* user_inputs, settings_t* settings, bool* x_button)
+void GUI::unitWindow(int unitcount, std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vector[], params* user_inputs, settings_t* settings, bool* x_button)
 {
     int counter;
     std::string ack_type[NUMBER_OF_ACKTYPE]; //string array containing all "AcknowUnitType"
@@ -330,11 +393,11 @@ void GUI::unitWindow(int unitcount, std::vector<Unit*> unit_vector[], std::vecto
     }
     if (ImGui::CollapsingHeader(("Manual Search Units"))) {
         
-        displayTreeNode(ack_type, unitcount, unit_vector, &counter,user_inputs);
+        displayTreeNode(ack_type, unitcount, unit_vector, &counter,user_inputs,settings);
         
         if (ImGui::TreeNode("allUnits")) {
 
-            displayUnits("", unitcount, unit_vector, &counter,user_inputs);
+            displayUnits("", unitcount, unit_vector, &counter,user_inputs,settings);
             ImGui::TreePop();
         }
     }
@@ -381,7 +444,7 @@ void GUI::ammoSelectedWindow(params* user_inputs,settings_t* settings) {
             ImGui::Text("%s", user_inputs->ammunitionToModify[i]->name.c_str());
         }
 
-    
+    if (e >= size) e = 0;
     if ((e < size) && (e != user_inputs->old_e_value_ammo)) {
         //display current stats in the box
         physical_damage = user_inputs->ammunitionToModify[e]->physicalDamages;
@@ -628,7 +691,7 @@ void GUI::showSearchResults(std::vector<Unit*> units, std::vector<Unit*> unitToM
     ImGui::Separator();
     ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "unitcount : %d", size);
 }
-void GUI::showSearchResults(std::vector<Weapon*> ammunition, std::vector<Weapon*> ammunitionToMod) {
+void GUI::showSearchResults(std::vector<Ammo*> ammunition, std::vector<Ammo*> ammunitionToMod) {
 
     int size = ammunition.size();
  

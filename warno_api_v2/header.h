@@ -36,6 +36,7 @@ struct params
 {
     int old_e_value = -1;       //this is the radio button value, storing so we can check the previous frame value
     int old_e_value_ammo = -1;
+    int old_i_value = -1;
 
     char str1[128]       = "";        
     char user_path[128]  = "";
@@ -49,10 +50,10 @@ struct params
     
     bool *checkboxes_allUnits;          //this array is used to know if a unit is selected in the 'all' tree node
     std::vector<Unit*> unitsToModify;   //this vector store the units that are going to be modify
-    std::vector<Weapon*> ammunitionToModify;
+    std::vector<Ammo*> ammunitionToModify;
 
     std::vector<Unit*> search_unit_results;  //this vector store the results of the search bar as pointers
-    std::vector<Weapon*> search_ammunition_results;  //this vector store the results of the search bar as pointers
+    std::vector<Ammo*> search_ammunition_results;  //this vector store the results of the search bar as pointers
 
 
     enum { VALID, EMPTY_STRING, PATH_NOT_FOUND, FILES_MISSING } status = EMPTY_STRING; 
@@ -74,35 +75,38 @@ typedef struct settings
     std::string original_path, new_path;
     std::string ud_original_path, ud_new_path;
     std::string am_original_path, am_new_path;
+    std::string wd_original_path, wd_new_path;
     FILE* hNew_file;
 }settings_t;
 namespace GUI
 {
-    void displayUnits(std::string filter, int unitcount, std::vector<Unit*> unit_vector[], int* counter, params* inputs);
-    void displayAmmo(std::vector<Weapon*> weapon_vector[], std::string familyNames[], std::string typeName[], params* inputs);
-    void displayTreeNode(std::string ack[], int unitcount, std::vector<Unit*> unit_vector[], int* counter, params* inputs);
+    void displayUnits(std::string filter, int unitcount, std::vector<Unit*> unit_vector[], int* counter, params* inputs, settings_t* settings);
+    void displayAmmo(std::vector<Ammo*> weapon_vector[], std::string familyNames[], std::string typeName[], params* inputs);
+    void displayTreeNode(std::string ack[], int unitcount, std::vector<Unit*> unit_vector[], int* counter, params* inputs, settings_t* settings);
     std::vector<Unit*> returnSelectedUnits(std::vector<Unit*> unit_vector[], params* inputs);
-    std::vector<Weapon*> returnSelectedAmmo(std::vector<Weapon*> unit_vector[], params* inputs);
-    void unitWindow(int unitcount, std::vector<Unit*> unit_vector[], std::vector<Weapon*> weapon_vector[], params* user_inputs, settings_t* settings, bool* x_button);
+    std::vector<Ammo*> returnSelectedAmmo(std::vector<Ammo*> ammo_vector[], params* inputs);
+    void unitWindow(int unitcount, std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vector[], params* user_inputs, settings_t* settings, bool* x_button);
     void unitSelectedWindow(params* user_inputs,settings_t* settings, std::string* ack_type);
     void ammoSelectedWindow(params* user_inputs, settings_t* settings);
     void updateStatsView(params* user_inputs, int indexToSkip);
     void showSearchResults(std::vector<Unit*> units, std::vector<Unit*>  user_inputs);
-    void showSearchResults(std::vector<Weapon*> ammunition, std::vector<Weapon*> ammunitionToMod);
-    void navBarButtons(std::vector<Unit*> unit_vector[], std::vector<Weapon*> weapon_vector[], params* user_inputs);
+    void showSearchResults(std::vector<Ammo*> ammunition, std::vector<Ammo*> ammunitionToMod);
+    void navBarButtons(std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vector[], params* user_inputs);
     void directoryWindow(params* user_inputs, bool* x_button);
+    std::vector<Ammo*> displayGuns(Unit* currentUnit);
 }
 // Forward declarations of helper functions
 bool CreateDeviceD3D(HWND hWnd);
 void CleanupDeviceD3D();
 void ResetDevice();
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-int getDataFromFile(std::vector<Unit*> unit_vector[],std::vector<Weapon*> weapons_vector[], settings_t* settings);
-void readLine(std::string line, int* line_counter,int* line_counter_all, int* units_counter, std::vector<Unit*> unit_vector[]);
-void readLine(std::string original_line, int* line_counter_relative, int* line_counter, int* weapon_counter, std::vector<Weapon*> weapon_vector[]);
+int getDataFromFile(std::vector<Unit*> unit_vector[],std::vector<Ammo*> weapons_vector[], settings_t* settings);
+void readLine(std::string line, int* line_counter,int* line_counter_all, int* units_counter, int* index, std::vector<Unit*> unit_vector[], std::vector<Ammo*> ammo_vector[], int forUnit);
+void readLine(std::string original_line, int* line_counter_relative, int* line_counter, int* weapon_counter, std::vector<Ammo*> weapon_vector[]);
+Ammo* findAmmoPtrWithName(std::vector<Ammo*> vector[], std::string name);
 bool writeData(params* modPtrs, unit_data_t* unit_data, ammo_data_t* ammo_data, settings_t settings, bool isUnit);
 std::vector<Unit*> searchUnit(std::string str, std::vector<Unit*> unit_vector[]);
-std::vector<Weapon*> searchUnit(std::string str, std::vector<Weapon*> weapon_vector[]);
+std::vector<Ammo*> searchUnit(std::string str, std::vector<Ammo*> weapon_vector[]);
 bool is_file_exist(const char* fileName);
 bool isPathExist(const std::string& s);
 bool checkFiles(std::string s);

@@ -55,10 +55,10 @@ std::vector<Unit*> searchUnit(std::string str, std::vector<Unit*> unit_vector[])
 	return results;
 }
 //overloaded function
-std::vector<Weapon*> searchUnit(std::string str, std::vector<Weapon*> weapon_vetor[]) {
+std::vector<Ammo*> searchUnit(std::string str, std::vector<Ammo*> weapon_vetor[]) {
 
-	std::vector<Weapon*> results;
-	Weapon* current = nullptr;
+	std::vector<Ammo*> results;
+	Ammo* current = nullptr;
 	for (int i = 0; i < weapon_vetor->size(); i++) {
 
 		current = weapon_vetor->at(i);
