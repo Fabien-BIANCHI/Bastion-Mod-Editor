@@ -11,6 +11,9 @@
 void GUI::displayUnits(std::string filter, int unitcount, std::vector<Unit*> unit_vector[], int* counter, params* inputs,settings_t* settings ) {
 
     *counter = 0;
+    std::string id = "Mod weapons##";
+    std::string id2 = "Mod weapons##all_";
+
     for (int i = 0; i < unitcount; i++) {
         if (strcmp(filter.c_str(), "") == 0) { //all units
             ImGui::Checkbox(("%s", unit_vector->at(i)->name.c_str()), &inputs->checkboxes_allUnits[i]);
@@ -23,7 +26,8 @@ void GUI::displayUnits(std::string filter, int unitcount, std::vector<Unit*> uni
                 ImGui::EndTooltip();
             }
             ImGui::SameLine();
-            if (ImGui::Button("Mod weapons")) {
+            id2.append(unit_vector->at(i)->name.c_str());
+            if (ImGui::Button(id2.c_str())) {
 
                 inputs->ammunitionToModify.clear();
                 if (!unit_vector->at(i)->guns->ammos.size() || !unit_vector->at(i)->guns) { printf("Invalid Data"); }
@@ -43,7 +47,8 @@ void GUI::displayUnits(std::string filter, int unitcount, std::vector<Unit*> uni
                 ImGui::EndTooltip();
             }
             ImGui::SameLine();
-            if (ImGui::Button("Mod weapons")) {
+            id.append(unit_vector->at(i)->name.c_str());
+            if (ImGui::Button(id.c_str())) {
 
                 inputs->ammunitionToModify.clear();
                 if (!unit_vector->at(i)->guns->ammos.size() || !unit_vector->at(i)->guns) { printf("Invalid Data"); }
@@ -75,15 +80,18 @@ std::vector<Ammo*> GUI::displayGuns(Unit* currentUnit) {
                 }
             }
             else {
-                printf("ammoPtr is empty");
+                printf("ammoPtr is empty\n");
+                return { 0 };
             }
         }
         else {
-            printf("gunPtr is nullptr");
+            printf("gunPtr is nullptr\n");
+            return { 0 };
         }
     }
     else {
-        printf("currentUnit is nullptr");
+        printf("currentUnit is nullptr\n");
+        return { 0 };
     }
     return AmmoPtrForUnit;
 }
