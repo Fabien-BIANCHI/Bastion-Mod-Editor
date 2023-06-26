@@ -53,7 +53,8 @@ void GUI::displayUnits(std::string filter, int unitcount, std::vector<Unit*> uni
                 inputs->ammunitionToModify.clear();
                 if (!unit_vector->at(i)->guns->ammos.size() || !unit_vector->at(i)->guns) { printf("Invalid Data"); }
                 inputs->ammunitionToModify = unit_vector->at(i)->guns->ammos;
-                inputs->modify_ammo = true;
+                if(inputs->ammunitionToModify.size())
+                    inputs->modify_ammo = true;
             }
             (*counter) += 1;
         }
@@ -95,7 +96,7 @@ std::vector<Ammo*> GUI::displayGuns(Unit* currentUnit) {
     }
     return AmmoPtrForUnit;
 }
-void GUI::displayAmmo(std::vector<Ammo*> weapon_vector[],std::string familyNames[],std::string typeName[], params* inputs) {
+void GUI::displayAmmo(std::vector<Ammo*> weapon_vector[], std::vector<Unit*> unit_vector[],std::string familyNames[],std::string typeName[], params* inputs) {
 
     int size = weapon_vector->size();
     int nb_Obus = 0;
@@ -105,7 +106,7 @@ void GUI::displayAmmo(std::vector<Ammo*> weapon_vector[],std::string familyNames
     int nb_balle = 0;
     int nb_GuidedMissile = 0;
     std::string withCount;
-
+    std::string id = "Mod units##";
 
     for (int i = 0; i < NUMBER_OF_AMMO_FAMILY; i++) {
         if (ImGui::TreeNode(familyNames[i].c_str())) {
@@ -168,8 +169,26 @@ void GUI::displayAmmo(std::vector<Ammo*> weapon_vector[],std::string familyNames
 
                     for (int h = 0; h < size; h++) {
                         if (strcmp(weapon_vector->at(h)->family.c_str(), familyNames[i].c_str()) == 0) {
-                            if (weapon_vector->at(h)->ammo_type_id == m)
+                            if (weapon_vector->at(h)->ammo_type_id == m) {
+
                                 ImGui::Checkbox(("%s", weapon_vector->at(h)->name.c_str()), &weapon_vector->at(h)->isSelected);
+                                ImGui::SameLine();
+                                ImGui::Button("Show Units");
+                                if (ImGui::IsItemHovered() && ImGui::BeginTooltip()) {
+
+                                    findUnitUsingAmmo(weapon_vector->at(h),unit_vector);
+                                    ImGui::EndTooltip();
+                                }
+                                ImGui::SameLine();
+                                id.append(weapon_vector->at(h)->name.c_str());
+                                if (ImGui::Button(id.c_str())) {
+
+                                    inputs->unitsToModify.clear();
+                                    inputs->unitsToModify = findUnitUsingAmmo(weapon_vector->at(h), unit_vector);
+                                    if(inputs->unitsToModify.size())
+                                        inputs->modify_units = true;
+                                }
+                            }
                         }
                     }
                     ImGui::TreePop();
@@ -178,6 +197,25 @@ void GUI::displayAmmo(std::vector<Ammo*> weapon_vector[],std::string familyNames
             ImGui::TreePop();
         }
     }
+}
+std::vector<Unit*> GUI::findUnitUsingAmmo(Ammo* ammo,std::vector<Unit*> unit_vector[]) {
+
+    std::vector<Unit*> ret;
+    int size = unit_vector->size();
+    for (int i = 0; i < size; i++) {
+        Unit* current = unit_vector->at(i);
+
+        if (!current->guns ) continue;
+        if (!current->guns->ammos.size()) continue;
+
+        for (int k = 0; k < current->guns->ammos.size(); k++) {
+            if (!strcmp(current->guns->ammos.at(k)->name.c_str(),ammo->name.c_str())) {
+                ret.push_back(current);
+                ImGui::Text(current->name.c_str());
+            }
+        }           
+    }
+    return ret;
 }
 void GUI::displayTreeNode(std::string ack[],int unitcount ,std::vector<Unit*> unit_vector[], int* counter, params* inputs, settings_t* settings) {
 
@@ -411,7 +449,7 @@ void GUI::unitWindow(int unitcount, std::vector<Unit*> unit_vector[], std::vecto
     }
     if (ImGui::CollapsingHeader(("Manual Search Ammo"))) {
         
-        displayAmmo(weapon_vector, ammo_family,ammo_type, user_inputs);
+        displayAmmo(weapon_vector,unit_vector, ammo_family,ammo_type, user_inputs);
     }
     if (user_inputs->modify_units) {
         unitSelectedWindow(user_inputs,settings, ack_type);

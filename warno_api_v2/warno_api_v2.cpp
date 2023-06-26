@@ -179,11 +179,16 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
     if (rename(settings.ud_new_path.c_str(), settings.ud_original_path.c_str())) { //rename the txt file 
         MessageBox(NULL, "Fail renaming new UnitDesc to old UnitDesc name", NULL, NULL);
     }
+
     if (remove(settings.am_original_path.c_str())) {//delete the old ndf file
         MessageBox(NULL, "Fail removing old Ammunition.ndf", NULL, NULL);
     }
     if (rename(settings.am_new_path.c_str(), settings.am_original_path.c_str())) { //rename the txt file 
         MessageBox(NULL, "Fail renaming new Ammunition to old Ammuniton name", NULL, NULL);
+    }
+
+    if (remove(settings.wd_new_path.c_str())) {
+        MessageBox(NULL, "Fail removing weapon desc .txt", NULL, NULL);
     }
     delete[] inputs.checkboxes_allUnits;
 

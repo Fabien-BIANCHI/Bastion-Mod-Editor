@@ -92,8 +92,8 @@ int getDataFromFile(std::vector<Unit*> unit_vector[],std::vector<Ammo*> ammo_vec
 	line_counter = 1;
 	int ammo_counter = 0;
 	updatePtrToNewFile(unit_vector, settings, "Ammunition.ndf", "Ammunition2.txt");
-	settings->wd_original_path = settings->original_path;
-	settings->wd_new_path = settings->new_path;
+	settings->am_original_path = settings->original_path;
+	settings->am_new_path = settings->new_path;
 	//ammunition_descriptor loop
 	while (fgets(buffer, sizeof(buffer), settings->hNew_file) != NULL) {
 
@@ -109,8 +109,8 @@ int getDataFromFile(std::vector<Unit*> unit_vector[],std::vector<Ammo*> ammo_vec
 	line_counter = 1;
 	int weapon_counter = 0;
 	updatePtrToNewFile(unit_vector, settings, "WeaponDescriptor.ndf", "WeaponDescriptor2.txt");
-	settings->am_original_path = settings->original_path;
-	settings->am_new_path = settings->new_path;
+	settings->wd_original_path = settings->original_path;
+	settings->wd_new_path = settings->new_path;
 
 	int current_unit_index;
 	//ammunition_descriptor loop

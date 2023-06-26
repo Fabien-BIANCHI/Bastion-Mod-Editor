@@ -81,7 +81,7 @@ typedef struct settings
 namespace GUI
 {
     void displayUnits(std::string filter, int unitcount, std::vector<Unit*> unit_vector[], int* counter, params* inputs, settings_t* settings);
-    void displayAmmo(std::vector<Ammo*> weapon_vector[], std::string familyNames[], std::string typeName[], params* inputs);
+    void displayAmmo(std::vector<Ammo*> weapon_vector[], std::vector<Unit*> unit_vector[], std::string familyNames[], std::string typeName[], params* inputs);
     void displayTreeNode(std::string ack[], int unitcount, std::vector<Unit*> unit_vector[], int* counter, params* inputs, settings_t* settings);
     std::vector<Unit*> returnSelectedUnits(std::vector<Unit*> unit_vector[], params* inputs);
     std::vector<Ammo*> returnSelectedAmmo(std::vector<Ammo*> ammo_vector[], params* inputs);
@@ -94,6 +94,7 @@ namespace GUI
     void navBarButtons(std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vector[], params* user_inputs);
     void directoryWindow(params* user_inputs, bool* x_button);
     std::vector<Ammo*> displayGuns(Unit* currentUnit);
+    std::vector<Unit*> findUnitUsingAmmo(Ammo* ammo, std::vector<Unit*> unit_vector[]);
 }
 // Forward declarations of helper functions
 bool CreateDeviceD3D(HWND hWnd);
