@@ -67,7 +67,9 @@ typedef struct unit_data
 }unit_data_t;
 typedef struct ammo_data 
 {
-    float new_PhysicalDamages;
+    float new_PhysicalDamages, suppressDamage,new_NoiseDissimulationMalus,new_TempsEntreDeuxSalves,new_TempsDeVisee;
+    int new_max_range,new_min_range,suppressDamageRadius,new_ShotsBeforeMaxNoise;
+     
 }ammo_data_t;
 //used to store paths
 typedef struct settings

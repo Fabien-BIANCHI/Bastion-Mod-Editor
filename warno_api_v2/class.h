@@ -8,8 +8,24 @@ public:
 	float physicalDamages;
 	int physicalDamagesLineOffset;
 	int ammo_type_id; //refer to the string array in unitWindow()
+	int max_range,max_range_offset;
+	int min_range,min_range_offset;
 
-	std::string weapon1, weapon2, weapon3;
+	float suppressDamage;
+	int suppressDamageOffset;
+
+	int radiusSuppressDamage, radiusSuppressDamageOffset;
+	int ShotsBeforeMaxNoise, ShotsBeforeMaxNoiseOffset;
+
+	float NoiseDissimulationMalus;
+	int NoiseDissimulationMalusOffset;
+
+	float TempsDeVisee;
+	int TempsDeViseeOffset;
+
+	float TempsEntreDeuxSalves;
+	int TempsEntreDeuxSalvesOffset;
+
 	int numberOfWeapons;
 
 	bool isSelected = false;

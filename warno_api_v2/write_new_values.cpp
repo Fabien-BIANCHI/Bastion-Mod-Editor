@@ -139,6 +139,46 @@ bool writeData(params* modPtrs,unit_data_t* unit_data,ammo_data_t* ammo_data,set
                         fputs(customStr("    PhysicalDamages                   = ", NULL, &ammo_data->new_PhysicalDamages).append("\n").c_str(), fTemp);
                         hit = true;
                     }
+                if (modPtrs->ammunitionToModify[j]->max_range_offset != 0)
+                    if (count == (modPtrs->ammunitionToModify[j]->startLineNumber + modPtrs->ammunitionToModify[j]->max_range_offset)) {
+                        fputs(customStr("    PorteeMaximale                    = ((", &ammo_data->new_max_range, NULL).append(") * Metre)\n").c_str(), fTemp);
+                        hit = true;
+                    }
+                if (modPtrs->ammunitionToModify[j]->min_range_offset != 0)
+                    if (count == (modPtrs->ammunitionToModify[j]->startLineNumber + modPtrs->ammunitionToModify[j]->min_range_offset)) {
+                        fputs(customStr("    PorteeMinimale                    = ((", &ammo_data->new_min_range, NULL).append(") * Metre)\n").c_str(), fTemp);
+                        hit = true;
+                    }
+                if (modPtrs->ammunitionToModify[j]->suppressDamageOffset != 0)
+                    if (count == (modPtrs->ammunitionToModify[j]->startLineNumber + modPtrs->ammunitionToModify[j]->suppressDamageOffset)) {
+                        fputs(customStr("    SuppressDamages                   = ", NULL, &ammo_data->suppressDamage).append("\n").c_str(), fTemp);
+                        hit = true;
+                    }
+                if (modPtrs->ammunitionToModify[j]->radiusSuppressDamageOffset != 0)
+                    if (count == (modPtrs->ammunitionToModify[j]->startLineNumber + modPtrs->ammunitionToModify[j]->radiusSuppressDamageOffset)) {
+                        fputs(customStr("    RadiusSplashSuppressDamages       = ", &ammo_data->suppressDamageRadius, NULL).append(" * Metre\n").c_str(), fTemp);
+                        hit = true;
+                    }
+                if (modPtrs->ammunitionToModify[j]->NoiseDissimulationMalusOffset != 0)
+                    if (count == (modPtrs->ammunitionToModify[j]->startLineNumber + modPtrs->ammunitionToModify[j]->NoiseDissimulationMalusOffset)) {
+                        fputs(customStr("    NoiseDissimulationMalus           = ", NULL, &ammo_data->new_NoiseDissimulationMalus).append("\n").c_str(), fTemp);
+                        hit = true;
+                    }
+                if (modPtrs->ammunitionToModify[j]->ShotsBeforeMaxNoiseOffset != 0)
+                    if (count == (modPtrs->ammunitionToModify[j]->startLineNumber + modPtrs->ammunitionToModify[j]->ShotsBeforeMaxNoiseOffset)) {
+                        fputs(customStr("    ShotsBeforeMaxNoise               = ", &ammo_data->new_ShotsBeforeMaxNoise, NULL).append("\n").c_str(), fTemp);
+                        hit = true;
+                    }
+                if (modPtrs->ammunitionToModify[j]->TempsDeViseeOffset != 0)
+                    if (count == (modPtrs->ammunitionToModify[j]->startLineNumber + modPtrs->ammunitionToModify[j]->TempsDeViseeOffset)) {
+                        fputs(customStr("    TempsDeVisee                      = ", NULL, &ammo_data->new_TempsDeVisee).append("\n").c_str(), fTemp);
+                        hit = true;
+                    }
+                if (modPtrs->ammunitionToModify[j]->TempsEntreDeuxSalvesOffset != 0)
+                    if (count == (modPtrs->ammunitionToModify[j]->startLineNumber + modPtrs->ammunitionToModify[j]->TempsEntreDeuxSalvesOffset)) {
+                        fputs(customStr("    TempsEntreDeuxSalves              = ", NULL , &ammo_data->new_TempsEntreDeuxSalves).append("\n").c_str(), fTemp);
+                        hit = true;
+                    }
             }
             if (!hit) {
                 fputs(buffer, fTemp);

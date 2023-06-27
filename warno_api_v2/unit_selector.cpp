@@ -475,7 +475,17 @@ void GUI::ammoSelectedWindow(params* user_inputs,settings_t* settings) {
 
     static int e = 0;
     static float physical_damage = 0.f;
+    static int max_range = 0;
+    static int min_range = 0;
+    static float suppress_damage = 0.f;
+    static int suppress_damage_radius = 0;
+    static float NoiseDissimulationMalus = 0.f;
+    static int ShotsBeforeMaxNoise = 0;
+    static float TempsEntreDeuxSalves = 0.f;
+    static float TempsDeVisee = 0.f;
+
     int size = user_inputs->ammunitionToModify.size();
+
     ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "weapons count : %d",size );
     ImGui::Separator();
     ImGui::Text("select unit to show info about it");
@@ -495,16 +505,44 @@ void GUI::ammoSelectedWindow(params* user_inputs,settings_t* settings) {
     if ((e < size) && (e != user_inputs->old_e_value_ammo)) {
         //display current stats in the box
         physical_damage = user_inputs->ammunitionToModify[e]->physicalDamages;
-
+        max_range = user_inputs->ammunitionToModify[e]->max_range;
+        min_range = user_inputs->ammunitionToModify[e]->min_range;
+        suppress_damage = user_inputs->ammunitionToModify[e]->suppressDamage;
+        suppress_damage_radius = user_inputs->ammunitionToModify[e]->radiusSuppressDamage;
+        NoiseDissimulationMalus = user_inputs->ammunitionToModify[e]->NoiseDissimulationMalus;
+        ShotsBeforeMaxNoise = user_inputs->ammunitionToModify[e]->ShotsBeforeMaxNoise;
+        TempsDeVisee = user_inputs->ammunitionToModify[e]->TempsDeVisee;
+        TempsEntreDeuxSalves = user_inputs->ammunitionToModify[e]->TempsEntreDeuxSalves;
 
         user_inputs->old_e_value_ammo = e;
     }
+
     ImGui::Separator();
     ImGui::Text("Modifications : ");
     ImGui::Separator();
 
     ImGui::InputFloat("PhysicalDamages", &physical_damage, (0.00F), (0.0F), "%.8f");
         
+    if (ImGui::CollapsingHeader("Range")) {
+
+        ImGui::InputInt("Max Range", &max_range);
+        ImGui::InputInt("Min Range", &min_range);
+    }
+    if (ImGui::CollapsingHeader("Suppress")) {
+
+        ImGui::InputFloat("Suppress Damage", &suppress_damage);
+        ImGui::InputInt("Suppress Damage Radius", &suppress_damage_radius);
+    }
+    if (ImGui::CollapsingHeader("Noise")) {
+
+        ImGui::InputFloat("NoiseDissimulationMalus",&NoiseDissimulationMalus );
+        ImGui::InputInt("ShotsBeforeMaxNoise", &ShotsBeforeMaxNoise);
+    }
+    if (ImGui::CollapsingHeader("Timings")) {
+
+        ImGui::InputFloat("TempsDeVisee", &TempsDeVisee);
+        ImGui::InputFloat("TempsEntreDeuxSalves", &TempsEntreDeuxSalves);
+    }
 
     ImGui::Separator();
     //converting int to string
@@ -526,6 +564,14 @@ void GUI::ammoSelectedWindow(params* user_inputs,settings_t* settings) {
 
         ammo_data_t data = {};
         data.new_PhysicalDamages = physical_damage;
+        data.new_max_range = max_range;
+        data.new_min_range = min_range;
+        data.suppressDamage = suppress_damage;
+        data.suppressDamageRadius = suppress_damage_radius;
+        data.new_NoiseDissimulationMalus = NoiseDissimulationMalus;
+        data.new_ShotsBeforeMaxNoise = ShotsBeforeMaxNoise;
+        data.new_TempsDeVisee = TempsDeVisee;
+        data.new_TempsEntreDeuxSalves = TempsEntreDeuxSalves;
 
         writeData(user_inputs, nullptr, &data, *settings, false);
     }

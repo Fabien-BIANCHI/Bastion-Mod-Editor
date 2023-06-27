@@ -302,6 +302,7 @@ std::string returnName(std::string str) {
 	std::string new_string = str.substr(0, pos);
 	return new_string;
 }
+//readLine for Ammunition.ndf
 void readLine(std::string original_line, int* line_counter_relative, int* line_counter, int* weapon_counter, std::vector<Ammo*> weapon_vector[]) {
 
 	//removing the indentation
@@ -331,19 +332,67 @@ void readLine(std::string original_line, int* line_counter_relative, int* line_c
 			current_weapon->family = buffer;
 			//we don't need the line offset (rn at least) bc we are not supossed to mod this value
 		}
-		if (strstr(buffer.c_str(), "EProjectileType")) {
+		else if (strstr(buffer.c_str(), "EProjectileType")) {
 
 			if (buffer.size() > 52)
 				buffer = buffer.substr(52, buffer.size() - 52);
 			current_weapon->ProjectileType = buffer;
 			//we don't need the line offset (rn at least) bc we are not supossed to mod this value
 		}
-		if (strstr(buffer.c_str(), "PhysicalDamages")) {
+		else if (strstr(buffer.c_str(), "PhysicalDamages")) {
 
 			buffer = buffer.substr(36, 5);
 			std::istringstream iss(buffer);
 			iss >> current_weapon->physicalDamages;
 			current_weapon->physicalDamagesLineOffset = *line_counter_relative;
+		}
+		else if (strstr(buffer.c_str(), "PorteeMaximale                    = ")) {
+			buffer = buffer.substr(38, 6);
+			std::istringstream iss(buffer);
+			iss >> current_weapon->max_range;
+			current_weapon->max_range_offset = *line_counter_relative;
+		}
+		else if (strstr(buffer.c_str(), "PorteeMinimale                    = ")) {
+			buffer = buffer.substr(38, 6);
+			std::istringstream iss(buffer);
+			iss >> current_weapon->min_range;
+			current_weapon->min_range_offset = *line_counter_relative;
+		}
+		else if (strstr(buffer.c_str(), "SuppressDamages                   = ")) {
+			buffer = buffer.substr(36, 5);
+			std::istringstream iss(buffer);
+			iss >> current_weapon->suppressDamage;
+			current_weapon->suppressDamageOffset = *line_counter_relative;
+		}
+		else if (strstr(buffer.c_str(), "RadiusSplashSuppressDamages       = ")) {
+			buffer = buffer.substr(36, 5);
+			std::istringstream iss(buffer);
+			iss >> current_weapon->radiusSuppressDamage;
+			current_weapon->radiusSuppressDamageOffset = *line_counter_relative;
+		}
+		else if (strstr(buffer.c_str(), "NoiseDissimulationMalus           = ")) {
+			buffer = buffer.substr(36, 5);
+			std::istringstream iss(buffer);
+			iss >> current_weapon->NoiseDissimulationMalus;
+			current_weapon->NoiseDissimulationMalusOffset = *line_counter_relative;
+		}
+		else if (strstr(buffer.c_str(), "ShotsBeforeMaxNoise               = ")) {
+			buffer = buffer.substr(36, 5);
+			std::istringstream iss(buffer);
+			iss >> current_weapon->ShotsBeforeMaxNoise;
+			current_weapon->ShotsBeforeMaxNoiseOffset = *line_counter_relative;
+		}
+		else if (strstr(buffer.c_str(), "TempsDeVisee                      = ")) {
+			buffer = buffer.substr(36, 5);
+			std::istringstream iss(buffer);
+			iss >> current_weapon->TempsDeVisee;
+			current_weapon->TempsDeViseeOffset = *line_counter_relative;
+		}
+		else if (strstr(buffer.c_str(), "TempsEntreDeuxSalves              = ")) {
+			buffer = buffer.substr(36, 5);
+			std::istringstream iss(buffer);
+			iss >> current_weapon->TempsEntreDeuxSalves;
+			current_weapon->TempsEntreDeuxSalvesOffset = *line_counter_relative;
 		}
 	}
 }
