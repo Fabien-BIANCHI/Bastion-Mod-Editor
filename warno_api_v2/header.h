@@ -85,7 +85,7 @@ namespace GUI
     void displayTreeNode(std::string ack[], int unitcount, std::vector<Unit*> unit_vector[], int* counter, params* inputs, settings_t* settings);
     std::vector<Unit*> returnSelectedUnits(std::vector<Unit*> unit_vector[], params* inputs);
     std::vector<Ammo*> returnSelectedAmmo(std::vector<Ammo*> ammo_vector[], params* inputs);
-    void unitWindow(int unitcount, std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vector[], params* user_inputs, settings_t* settings, bool* x_button);
+    void unitWindow(int unitcount, std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vector[], params* user_inputs, settings_t* settings, bool* x_button,HWND hWnd);
     void unitSelectedWindow(params* user_inputs,settings_t* settings, std::string* ack_type);
     void ammoSelectedWindow(params* user_inputs, settings_t* settings);
     void updateStatsView(params* user_inputs, int indexToSkip);
@@ -112,3 +112,4 @@ bool is_file_exist(const char* fileName);
 bool isPathExist(const std::string& s);
 bool checkFiles(std::string s);
 bool checkDirectoryTxt();
+void updateImGuiWindow(HWND hWnd);

@@ -359,7 +359,7 @@ void GUI::navBarButtons(std::vector<Unit*> unit_vector[], std::vector<Ammo*> wea
    
 }
 //main window
-void GUI::unitWindow(int unitcount, std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vector[], params* user_inputs, settings_t* settings, bool* x_button)
+void GUI::unitWindow(int unitcount, std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vector[], params* user_inputs, settings_t* settings, bool* x_button,HWND hWnd)
 {
     int counter;
     std::string ack_type[NUMBER_OF_ACKTYPE]; //string array containing all "AcknowUnitType"
@@ -422,7 +422,8 @@ void GUI::unitWindow(int unitcount, std::vector<Unit*> unit_vector[], std::vecto
     ammo_type[5] = "GuidedMissile";
 #pragma endregion
     ImGui::Begin("Selector",x_button);
-    
+
+    updateImGuiWindow(hWnd);
     ImGui::InputTextWithHint("##unitNameBox","type here", user_inputs->str1, IM_ARRAYSIZE(user_inputs->str1));
  
     navBarButtons(unit_vector, weapon_vector, user_inputs);

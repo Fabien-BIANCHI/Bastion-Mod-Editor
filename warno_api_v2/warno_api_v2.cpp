@@ -13,17 +13,29 @@ std::vector<Ammo*> allWeapons;
 
 //entry point
 int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow){
-    
+    /*
     AllocConsole();
     FILE* f;
     freopen_s(&f, "CONOUT$", "w", stdout);
-    
-    
+    */
     // Create application window
     //ImGui_ImplWin32_EnableDpiAwareness();
     WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"warno_api", nullptr };
+    
     RegisterClassExW(&wc);
-    HWND hwnd = CreateWindowW(wc.lpszClassName, L"warno_api_v2", WS_OVERLAPPEDWINDOW, 100, 100, 800, 600, nullptr, nullptr, wc.hInstance, nullptr);
+    HWND hwnd = CreateWindowW(wc.lpszClassName, L"Bastion Mod Editor", WS_OVERLAPPEDWINDOW, 100, 100, 800, 600, nullptr, nullptr, wc.hInstance, nullptr);
+    if (hwnd == NULL)
+        return 1;
+    
+
+    // Load the icon
+    HICON hIcon = static_cast<HICON>(LoadImage(hInst, "C:\\Users\\matt0\\source\\repos\\Raichu53\\Bastion-Mod-Editor\\warno_api_v2\\BS24.ico",
+        IMAGE_ICON, 32, 32, LR_LOADFROMFILE));
+    if (hIcon)
+    {
+        // Set the small icon for the window (displayed in the taskbar)
+        SendMessage(hwnd, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(hIcon));
+    }
 
     // Initialize Direct3D
     if (!CreateDeviceD3D(hwnd))
@@ -129,6 +141,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
             done = true;
         //params contient maintenant une énumération qui s'appelle status.
         //Il indique si l'application a trouvé un chemin valide pour un dossier de mod.
+
         if (inputs.status == params::VALID) {  
             if (read_once) {
                 getDataFromFile(&allUnits,&allWeapons,&settings);
@@ -137,13 +150,13 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
                 for (int i = 0; i < size; i++) { inputs.checkboxes_allUnits[i] = false; }
                 read_once = false;
             }
-            GUI::unitWindow(allUnits.size(), &allUnits,&allWeapons, &inputs,&settings,&x_button);
+            GUI::unitWindow(allUnits.size(), &allUnits,&allWeapons, &inputs,&settings,&x_button,hwnd);
         }
         else {
             GUI::directoryWindow(&inputs, &x_button);
             read_once = true;
         }
-            
+        
 
 
         // Rendering
@@ -195,17 +208,30 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
     ImGui_ImplDX9_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
-    
+    /*
     fclose(f);
     FreeConsole();
-    
+    */
     CleanupDeviceD3D();
     DestroyWindow(hwnd);
     UnregisterClassW(wc.lpszClassName, wc.hInstance);
 
     return 0;
 }
+void updateImGuiWindow(HWND hWnd) {
 
+    RECT windowRect;
+    GetWindowRect(hWnd, &windowRect);
+
+    int windowWidth = windowRect.right - windowRect.left;
+    int windowHeight = windowRect.bottom - windowRect.top;
+    int windowX = windowRect.left;
+    int windowY = windowRect.top;
+
+    //ImGuiCond_FirstUseEver to only to it first frame
+    ImGui::SetWindowPos({ (float)(windowX + 7),(float)(windowY + 30) });
+    ImGui::SetWindowSize({ (float)(windowWidth - 15),(float)(windowHeight - 37) });
+}
 // Helper functions
 bool CreateDeviceD3D(HWND hWnd)
 {
@@ -261,6 +287,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     switch (msg)
     {
+   
     case WM_SIZE:
         if (wParam == SIZE_MINIMIZED)
             return 0;
