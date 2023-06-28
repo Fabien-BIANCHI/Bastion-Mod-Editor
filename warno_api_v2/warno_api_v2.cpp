@@ -11,8 +11,8 @@ static D3DPRESENT_PARAMETERS    g_d3dpp = {};
 std::vector<Unit*> allUnits;
 std::vector<Ammo*> allWeapons;
 
-//entry point
-int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow){
+//entry point 
+int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow) {
     /*
     AllocConsole();
     FILE* f;
@@ -229,8 +229,8 @@ void updateImGuiWindow(HWND hWnd) {
     int windowY = windowRect.top;
 
     //ImGuiCond_FirstUseEver to only to it first frame
-    ImGui::SetWindowPos({ (float)(windowX + 7),(float)(windowY + 30) });
-    ImGui::SetWindowSize({ (float)(windowWidth - 15),(float)(windowHeight - 37) });
+    //ImGui::SetWindowPos({ (float)(windowX + 7),(float)(windowY + 30) });
+    //ImGui::SetWindowSize({ (float)(windowWidth - 15),(float)(windowHeight - 37) });
 }
 // Helper functions
 bool CreateDeviceD3D(HWND hWnd)

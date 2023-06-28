@@ -28,7 +28,7 @@ std::string customStr(std::string text, int* intVal,float* floatVal) {
     }
 }
 //when calling, use the correct type according to the bool (last parametre)
-bool writeData(params* modPtrs,unit_data_t* unit_data,ammo_data_t* ammo_data,settings_t settings,bool isUnit) {
+bool writeData(params* modPtrs,settings_t settings,bool isUnit) {
 
     /* File pointer to hold reference of input file */
     FILE* fPtr;
@@ -38,24 +38,14 @@ bool writeData(params* modPtrs,unit_data_t* unit_data,ammo_data_t* ammo_data,set
     int  count;
 
     if (isUnit) {
-        if (unit_data) {
-            settings.original_path = settings.ud_original_path;
-            settings.new_path = settings.ud_new_path;
-        }
-        else {
-            MessageBoxA(NULL, "isUnit is set to true but unit_data is set to null", NULL, NULL);
-            exit(1);
-        }
+        
+        settings.original_path = settings.ud_original_path;
+        settings.new_path = settings.ud_new_path;
     }
     else {
-        if (ammo_data) {
-            settings.original_path = settings.am_original_path;
-            settings.new_path = settings.am_new_path;
-        }
-        else {
-            MessageBoxA(NULL, "isUnit is set to false but ammo_data is set to null", NULL, NULL);
-            exit(1);
-        }
+
+        settings.original_path = settings.am_original_path;
+        settings.new_path = settings.am_new_path;
     }
 
     /*  Open all required files */
@@ -77,51 +67,56 @@ bool writeData(params* modPtrs,unit_data_t* unit_data,ammo_data_t* ammo_data,set
     */
     count = 1;
     bool hit = false;
+    Unit* curr_unit = nullptr;
+    Ammo* curr_ammo = nullptr;
+
     while ((fgets(buffer, BUFFER_SIZE, fPtr)) != NULL)
     {
         if (isUnit) {
             for (int i = 0; i < modPtrs->unitsToModify.size(); i++) {
+
+                curr_unit = modPtrs->unitsToModify.at(i);
                 /* If current line is line to replace */
-                if(modPtrs->unitsToModify[i]->costLineOffset != 0)
-                    if (count == (modPtrs->unitsToModify[i]->exportLineNumber + modPtrs->unitsToModify[i]->costLineOffset)) { //comand points
+                if(curr_unit->costLineOffset != 0)
+                    if (count == (curr_unit->exportLineNumber + curr_unit->costLineOffset)) { //comand points
                     
-                        fputs(customStr("                        (~/Resource_CommandPoints, ", &unit_data->new_cp, NULL).append("),\n").c_str(), fTemp);
+                        fputs(customStr("                        (~/Resource_CommandPoints, ", &curr_unit->new_cp, NULL).append("),\n").c_str(), fTemp);
                         hit = true;
                     }
-                if (modPtrs->unitsToModify[i]->fuelLineOffset != 0)
-                    if (count == (modPtrs->unitsToModify[i]->exportLineNumber + modPtrs->unitsToModify[i]->fuelLineOffset)) {
+                if (curr_unit->fuelLineOffset != 0)
+                    if (count == (curr_unit->exportLineNumber + curr_unit->fuelLineOffset)) {
 
-                        fputs(customStr("                    FuelCapacity     = ", &unit_data->new_fuel, NULL).append("\n").c_str(), fTemp);
+                        fputs(customStr("                    FuelCapacity     = ", &curr_unit->new_fuel, NULL).append("\n").c_str(), fTemp);
                         hit = true;
                     }
-                if (modPtrs->unitsToModify[i]->fuelTimeLineOffset != 0)
-                    if (count == (modPtrs->unitsToModify[i]->exportLineNumber + modPtrs->unitsToModify[i]->fuelTimeLineOffset)) {
+                if (curr_unit->fuelTimeLineOffset != 0)
+                    if (count == (curr_unit->exportLineNumber + curr_unit->fuelTimeLineOffset)) {
 
-                        fputs(customStr("                    FuelMoveDuration = ", NULL, &unit_data->new_fuelTime).append("\n").c_str(), fTemp);
+                        fputs(customStr("                    FuelMoveDuration = ", NULL, &curr_unit->new_fuelTime).append("\n").c_str(), fTemp);
                         hit = true;
                     }
-                if (modPtrs->unitsToModify[i]->maxSpeedLineOffset != 0)
-                    if (count == (modPtrs->unitsToModify[i]->exportLineNumber + modPtrs->unitsToModify[i]->maxSpeedLineOffset)) {
+                if (curr_unit->maxSpeedLineOffset != 0)
+                    if (count == (modPtrs->unitsToModify[i]->exportLineNumber + curr_unit->maxSpeedLineOffset)) {
 
-                        fputs(customStr("               MaxSpeed         = ", &unit_data->new_maxSpeed, NULL).append("\n").c_str(), fTemp);
+                        fputs(customStr("               MaxSpeed         = ", &curr_unit->new_maxSpeed, NULL).append("\n").c_str(), fTemp);
                         hit = true;
                     }
-                if (modPtrs->unitsToModify[i]->speedBonusLineOffset != 0)
-                    if (count == (modPtrs->unitsToModify[i]->exportLineNumber + modPtrs->unitsToModify[i]->speedBonusLineOffset)) {
+                if (curr_unit->speedBonusLineOffset != 0)
+                    if (count == (curr_unit->exportLineNumber + curr_unit->speedBonusLineOffset)) {
 
-                        fputs(customStr("                    SpeedBonusOnRoad = ", NULL, &unit_data->new_speedBonus).append("\n").c_str(), fTemp);
+                        fputs(customStr("                    SpeedBonusOnRoad = ", NULL, &curr_unit->new_speedBonus).append("\n").c_str(), fTemp);
                         hit = true;
                     }
-                if (modPtrs->unitsToModify[i]->opticalStrenghtLineOffset != 0)
-                    if (count == (modPtrs->unitsToModify[i]->exportLineNumber + modPtrs->unitsToModify[i]->opticalStrenghtLineOffset)) {
+                if (curr_unit->opticalStrenghtLineOffset != 0)
+                    if (count == (curr_unit->exportLineNumber + curr_unit->opticalStrenghtLineOffset)) {
 
-                        fputs(customStr("                    OpticalStrength = ", NULL, &unit_data->new_optical_strenght).append("\n").c_str(), fTemp);
+                        fputs(customStr("                    OpticalStrength = ", NULL, &curr_unit->new_optical_strenght).append("\n").c_str(), fTemp);
                         hit = true;
                     }
-                if (modPtrs->unitsToModify[i]->realRoadSpeedLineOffset != 0)
-                    if (count == (modPtrs->unitsToModify[i]->exportLineNumber + modPtrs->unitsToModify[i]->realRoadSpeedLineOffset)) {
+                if (curr_unit->realRoadSpeedLineOffset != 0)
+                    if (count == (curr_unit->exportLineNumber + curr_unit->realRoadSpeedLineOffset)) {
 
-                        fputs(customStr("                RealRoadSpeed = ", &unit_data->new_realRoadSpeed, NULL).append("\n").c_str(), fTemp);
+                        fputs(customStr("                RealRoadSpeed = ", &curr_unit->new_realRoadSpeed, NULL).append("\n").c_str(), fTemp);
                         hit = true;
                     }
             }
@@ -134,49 +129,50 @@ bool writeData(params* modPtrs,unit_data_t* unit_data,ammo_data_t* ammo_data,set
          
             for (int j = 0; j < modPtrs->ammunitionToModify.size(); j++) {
 
-                if(modPtrs->ammunitionToModify[j]->physicalDamagesLineOffset != 0)
-                    if (count == (modPtrs->ammunitionToModify[j]->startLineNumber + modPtrs->ammunitionToModify[j]->physicalDamagesLineOffset)) {
-                        fputs(customStr("    PhysicalDamages                   = ", NULL, &ammo_data->new_PhysicalDamages).append("\n").c_str(), fTemp);
+                curr_ammo = modPtrs->ammunitionToModify.at(j);
+                if(curr_ammo->physicalDamagesLineOffset != 0)
+                    if (count == (curr_ammo->startLineNumber + curr_ammo->physicalDamagesLineOffset)) {
+                        fputs(customStr("    PhysicalDamages                   = ", NULL, &curr_ammo->new_PhysicalDamages).append("\n").c_str(), fTemp);
                         hit = true;
                     }
-                if (modPtrs->ammunitionToModify[j]->max_range_offset != 0)
-                    if (count == (modPtrs->ammunitionToModify[j]->startLineNumber + modPtrs->ammunitionToModify[j]->max_range_offset)) {
-                        fputs(customStr("    PorteeMaximale                    = ((", &ammo_data->new_max_range, NULL).append(") * Metre)\n").c_str(), fTemp);
+                if (curr_ammo->max_range_offset != 0)
+                    if (count == (curr_ammo->startLineNumber + curr_ammo->max_range_offset)) {
+                        fputs(customStr("    PorteeMaximale                    = ((", &curr_ammo->new_max_range, NULL).append(") * Metre)\n").c_str(), fTemp);
                         hit = true;
                     }
-                if (modPtrs->ammunitionToModify[j]->min_range_offset != 0)
-                    if (count == (modPtrs->ammunitionToModify[j]->startLineNumber + modPtrs->ammunitionToModify[j]->min_range_offset)) {
-                        fputs(customStr("    PorteeMinimale                    = ((", &ammo_data->new_min_range, NULL).append(") * Metre)\n").c_str(), fTemp);
+                if (curr_ammo->min_range_offset != 0)
+                    if (count == (curr_ammo->startLineNumber + curr_ammo->min_range_offset)) {
+                        fputs(customStr("    PorteeMinimale                    = ((", &curr_ammo->new_min_range, NULL).append(") * Metre)\n").c_str(), fTemp);
                         hit = true;
                     }
-                if (modPtrs->ammunitionToModify[j]->suppressDamageOffset != 0)
-                    if (count == (modPtrs->ammunitionToModify[j]->startLineNumber + modPtrs->ammunitionToModify[j]->suppressDamageOffset)) {
-                        fputs(customStr("    SuppressDamages                   = ", NULL, &ammo_data->suppressDamage).append("\n").c_str(), fTemp);
+                if (curr_ammo->suppressDamageOffset != 0)
+                    if (count == (curr_ammo->startLineNumber + curr_ammo->suppressDamageOffset)) {
+                        fputs(customStr("    SuppressDamages                   = ", NULL, &curr_ammo->new_suppressDamage).append("\n").c_str(), fTemp);
                         hit = true;
                     }
-                if (modPtrs->ammunitionToModify[j]->radiusSuppressDamageOffset != 0)
-                    if (count == (modPtrs->ammunitionToModify[j]->startLineNumber + modPtrs->ammunitionToModify[j]->radiusSuppressDamageOffset)) {
-                        fputs(customStr("    RadiusSplashSuppressDamages       = ", &ammo_data->suppressDamageRadius, NULL).append(" * Metre\n").c_str(), fTemp);
+                if (curr_ammo->radiusSuppressDamageOffset != 0)
+                    if (count == (curr_ammo->startLineNumber + curr_ammo->radiusSuppressDamageOffset)) {
+                        fputs(customStr("    RadiusSplashSuppressDamages       = ", &curr_ammo->new_suppressDamageRadius, NULL).append(" * Metre\n").c_str(), fTemp);
                         hit = true;
                     }
-                if (modPtrs->ammunitionToModify[j]->NoiseDissimulationMalusOffset != 0)
-                    if (count == (modPtrs->ammunitionToModify[j]->startLineNumber + modPtrs->ammunitionToModify[j]->NoiseDissimulationMalusOffset)) {
-                        fputs(customStr("    NoiseDissimulationMalus           = ", NULL, &ammo_data->new_NoiseDissimulationMalus).append("\n").c_str(), fTemp);
+                if (curr_ammo->NoiseDissimulationMalusOffset != 0)
+                    if (count == (curr_ammo->startLineNumber + curr_ammo->NoiseDissimulationMalusOffset)) {
+                        fputs(customStr("    NoiseDissimulationMalus           = ", NULL, &curr_ammo->new_NoiseDissimulationMalus).append("\n").c_str(), fTemp);
                         hit = true;
                     }
-                if (modPtrs->ammunitionToModify[j]->ShotsBeforeMaxNoiseOffset != 0)
-                    if (count == (modPtrs->ammunitionToModify[j]->startLineNumber + modPtrs->ammunitionToModify[j]->ShotsBeforeMaxNoiseOffset)) {
-                        fputs(customStr("    ShotsBeforeMaxNoise               = ", &ammo_data->new_ShotsBeforeMaxNoise, NULL).append("\n").c_str(), fTemp);
+                if (curr_ammo->ShotsBeforeMaxNoiseOffset != 0)
+                    if (count == (curr_ammo->startLineNumber + curr_ammo->ShotsBeforeMaxNoiseOffset)) {
+                        fputs(customStr("    ShotsBeforeMaxNoise               = ", &curr_ammo->new_ShotsBeforeMaxNoise, NULL).append("\n").c_str(), fTemp);
                         hit = true;
                     }
-                if (modPtrs->ammunitionToModify[j]->TempsDeViseeOffset != 0)
-                    if (count == (modPtrs->ammunitionToModify[j]->startLineNumber + modPtrs->ammunitionToModify[j]->TempsDeViseeOffset)) {
-                        fputs(customStr("    TempsDeVisee                      = ", NULL, &ammo_data->new_TempsDeVisee).append("\n").c_str(), fTemp);
+                if (curr_ammo->TempsDeViseeOffset != 0)
+                    if (count == (curr_ammo->startLineNumber + curr_ammo->TempsDeViseeOffset)) {
+                        fputs(customStr("    TempsDeVisee                      = ", NULL, &curr_ammo->new_TempsDeVisee).append("\n").c_str(), fTemp);
                         hit = true;
                     }
-                if (modPtrs->ammunitionToModify[j]->TempsEntreDeuxSalvesOffset != 0)
-                    if (count == (modPtrs->ammunitionToModify[j]->startLineNumber + modPtrs->ammunitionToModify[j]->TempsEntreDeuxSalvesOffset)) {
-                        fputs(customStr("    TempsEntreDeuxSalves              = ", NULL , &ammo_data->new_TempsEntreDeuxSalves).append("\n").c_str(), fTemp);
+                if (curr_ammo->TempsEntreDeuxSalvesOffset != 0)
+                    if (count == (curr_ammo->startLineNumber + curr_ammo->TempsEntreDeuxSalvesOffset)) {
+                        fputs(customStr("    TempsEntreDeuxSalves              = ", NULL , &curr_ammo->new_TempsEntreDeuxSalves).append("\n").c_str(), fTemp);
                         hit = true;
                     }
             }

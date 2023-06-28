@@ -26,6 +26,9 @@ public:
 	float TempsEntreDeuxSalves;
 	int TempsEntreDeuxSalvesOffset;
 
+	float new_PhysicalDamages, new_suppressDamage, new_NoiseDissimulationMalus, new_TempsEntreDeuxSalves, new_TempsDeVisee;
+	int new_max_range, new_min_range, new_suppressDamageRadius, new_ShotsBeforeMaxNoise;
+
 	int numberOfWeapons;
 
 	bool isSelected = false;
@@ -52,7 +55,8 @@ public:
 
 	std::string name,nationality,mother_country,acknow_unit_type,type_unit_formation;
 	int cost,costLineOffset;
-	int fuel, fuelTime, fuelLineOffset, fuelTimeLineOffset;
+	float fuelTime;
+	int fuel, fuelLineOffset, fuelTimeLineOffset;
 	int maxSpeed, maxSpeedLineOffset;
 	float speedBonus;
 	int speedBonusLineOffset;
@@ -61,6 +65,11 @@ public:
 	int realRoadSpeed;
 	int realRoadSpeedLineOffset;
 
+
+	int new_cp, new_speed, new_fuel, new_maxSpeed, new_realRoadSpeed;
+	float new_fuelTime, new_optical_strenght, new_speedBonus;
+
+	
 	Weapons* guns;
 
 	Unit() {}

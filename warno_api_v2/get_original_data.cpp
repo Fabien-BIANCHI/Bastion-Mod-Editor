@@ -211,19 +211,26 @@ void readLine(std::string original_line, int* line_counter_relative,int* line_co
 				std::istringstream iss(buffer); //convert string to int
 				iss >> cp;
 				current_unit->cost = cp;
+				current_unit->new_cp = cp;
 				current_unit->costLineOffset = *line_counter_relative;
 			}
 
 			else if (strstr(buffer.c_str(), "FuelCapacity     = ")) {
+				int fuelCap;
 				buffer = buffer.substr(19, 4);
 				std::istringstream iss(buffer);
-				iss >> current_unit->fuel;
+				iss >> fuelCap;
+				current_unit->fuel = fuelCap;
+				current_unit->new_fuel = fuelCap;
 				current_unit->fuelLineOffset = *line_counter_relative;
 			}
 			else if (strstr(buffer.c_str(), "FuelMoveDuration = ")) {
+				float fuelMove;
 				buffer = buffer.substr(19, 4);
 				std::istringstream iss(buffer);
-				iss >> current_unit->fuelTime;
+				iss >> fuelMove;
+				current_unit->fuelTime = fuelMove;
+				current_unit->new_fuelTime = fuelMove;
 				current_unit->fuelTimeLineOffset = *line_counter_relative;
 			}
 			else if (strstr(buffer.c_str(), "MaxSpeed         =")) {
@@ -232,6 +239,7 @@ void readLine(std::string original_line, int* line_counter_relative,int* line_co
 				std::istringstream iss(buffer);
 				iss >> maxspeed;
 				current_unit->maxSpeed = maxspeed;
+				current_unit->new_maxSpeed = maxspeed;
 				current_unit->maxSpeedLineOffset = *line_counter_relative;
 			}
 			else if (strstr(buffer.c_str(), "SpeedBonusOnRoad =")) {
@@ -239,23 +247,31 @@ void readLine(std::string original_line, int* line_counter_relative,int* line_co
 				buffer = buffer.substr(19, 18);	//on coupe le debut, et on prend au maximum 17 chiffres du float
 				float speedBonus_f = std::stof(buffer);; //convert string to float
 				current_unit->speedBonus = speedBonus_f;
+				current_unit->new_speedBonus = speedBonus_f;
 				current_unit->speedBonusLineOffset = *line_counter_relative;
 			}
 			else if (strstr(buffer.c_str(), "OpticalStrength = ")) {
+				float optical;
 				buffer = buffer.substr(18, 4);
 				std::istringstream iss(buffer);
-				iss >> current_unit->opticalStrenght;
+				iss >> optical;
+				current_unit->opticalStrenght = optical;
+				current_unit->new_optical_strenght = optical;
 				current_unit->opticalStrenghtLineOffset = *line_counter_relative;
 			}
 			else if (strstr(buffer.c_str(), "RealRoadSpeed =")) {
+				int realRoadSpeed;
 				buffer = buffer.substr(16, 4);
 				std::istringstream iss(buffer);
-				iss >> current_unit->realRoadSpeed;
+				iss >> realRoadSpeed;
+				current_unit->realRoadSpeed = realRoadSpeed;
+				current_unit->new_realRoadSpeed = realRoadSpeed;
 				current_unit->realRoadSpeedLineOffset = *line_counter_relative;
 			}
 		}
 	}
-	else if (forUnit == 2) {
+	/*weapondescriptor is used to know which unit owns which ammo*/
+	else if (forUnit == 2) { 
 		int size = unit_vector->size();
 		int pos;
 		if (strstr(original_line.c_str(), "export")) {
@@ -340,58 +356,84 @@ void readLine(std::string original_line, int* line_counter_relative, int* line_c
 			//we don't need the line offset (rn at least) bc we are not supossed to mod this value
 		}
 		else if (strstr(buffer.c_str(), "PhysicalDamages")) {
-
+			float phys;
 			buffer = buffer.substr(36, 5);
 			std::istringstream iss(buffer);
-			iss >> current_weapon->physicalDamages;
+			iss >> phys;
+			current_weapon->physicalDamages = phys;
+			current_weapon->new_PhysicalDamages = phys;
 			current_weapon->physicalDamagesLineOffset = *line_counter_relative;
 		}
 		else if (strstr(buffer.c_str(), "PorteeMaximale                    = ")) {
+			int portemax;
 			buffer = buffer.substr(38, 6);
 			std::istringstream iss(buffer);
-			iss >> current_weapon->max_range;
+			iss >> portemax;
+			current_weapon->max_range = portemax;
+			current_weapon->new_max_range = portemax;
 			current_weapon->max_range_offset = *line_counter_relative;
 		}
 		else if (strstr(buffer.c_str(), "PorteeMinimale                    = ")) {
+			int portemin;
 			buffer = buffer.substr(38, 6);
 			std::istringstream iss(buffer);
-			iss >> current_weapon->min_range;
+			iss >> portemin;
+			current_weapon->min_range = portemin;
+			current_weapon->new_min_range = portemin;
 			current_weapon->min_range_offset = *line_counter_relative;
 		}
 		else if (strstr(buffer.c_str(), "SuppressDamages                   = ")) {
+			float supr;
 			buffer = buffer.substr(36, 5);
 			std::istringstream iss(buffer);
-			iss >> current_weapon->suppressDamage;
+			iss >> supr;
+			current_weapon->suppressDamage = supr;
+			current_weapon->new_suppressDamage = supr;
 			current_weapon->suppressDamageOffset = *line_counter_relative;
 		}
 		else if (strstr(buffer.c_str(), "RadiusSplashSuppressDamages       = ")) {
+			int radius;
 			buffer = buffer.substr(36, 5);
 			std::istringstream iss(buffer);
-			iss >> current_weapon->radiusSuppressDamage;
+			iss >> radius;
+			current_weapon->radiusSuppressDamage = radius;
+			current_weapon->new_suppressDamageRadius = radius;
 			current_weapon->radiusSuppressDamageOffset = *line_counter_relative;
 		}
 		else if (strstr(buffer.c_str(), "NoiseDissimulationMalus           = ")) {
+			float noise;
 			buffer = buffer.substr(36, 5);
 			std::istringstream iss(buffer);
-			iss >> current_weapon->NoiseDissimulationMalus;
+			iss >> noise;
+			current_weapon->NoiseDissimulationMalus = noise;
+			current_weapon->new_NoiseDissimulationMalus = noise;
 			current_weapon->NoiseDissimulationMalusOffset = *line_counter_relative;
 		}
 		else if (strstr(buffer.c_str(), "ShotsBeforeMaxNoise               = ")) {
+			int shots;
 			buffer = buffer.substr(36, 5);
 			std::istringstream iss(buffer);
-			iss >> current_weapon->ShotsBeforeMaxNoise;
+			iss >> shots;
+			current_weapon->ShotsBeforeMaxNoise = shots;
+			current_weapon->new_ShotsBeforeMaxNoise = shots;
 			current_weapon->ShotsBeforeMaxNoiseOffset = *line_counter_relative;
 		}
 		else if (strstr(buffer.c_str(), "TempsDeVisee                      = ")) {
+			float temps;
 			buffer = buffer.substr(36, 5);
 			std::istringstream iss(buffer);
-			iss >> current_weapon->TempsDeVisee;
+			iss >> temps;
+			current_weapon->TempsDeVisee = temps;
+			current_weapon->new_TempsDeVisee = temps;
 			current_weapon->TempsDeViseeOffset = *line_counter_relative;
 		}
 		else if (strstr(buffer.c_str(), "TempsEntreDeuxSalves              = ")) {
+			float tempsDeux;
 			buffer = buffer.substr(36, 5);
 			std::istringstream iss(buffer);
-			iss >> current_weapon->TempsEntreDeuxSalves;
+			iss >> tempsDeux;
+			current_weapon->TempsEntreDeuxSalves = tempsDeux;
+			current_weapon->new_TempsEntreDeuxSalves = tempsDeux;
 			current_weapon->TempsEntreDeuxSalvesOffset = *line_counter_relative;
 		}
 	}

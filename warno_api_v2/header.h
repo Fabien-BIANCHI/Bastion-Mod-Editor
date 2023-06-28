@@ -31,6 +31,7 @@
 #define NUMBER_OF_AMMO_FAMILY 15
 #define NUMBER_OF_AMMO_TYPE 6
 
+
 //using this struct to pass data related to user choices
 struct params
 {
@@ -46,8 +47,14 @@ struct params
     bool show_unit_results           = false;  //set to true to see the result of the search bar
     bool show_ammunition_results     = false;
     bool opticalList                 = false;   
+    bool restartApp                  = false;
 
-    
+    bool statusUnitModWind = true;
+    bool unitDone = false;
+    bool statusAmmoModWind = true;
+    bool ammoDone = false;
+ 
+
     bool *checkboxes_allUnits;          //this array is used to know if a unit is selected in the 'all' tree node
     std::vector<Unit*> unitsToModify;   //this vector store the units that are going to be modify
     std::vector<Ammo*> ammunitionToModify;
@@ -59,18 +66,7 @@ struct params
     enum { VALID, EMPTY_STRING, PATH_NOT_FOUND, FILES_MISSING } status = EMPTY_STRING; 
     bool is_auto_speed_bonus = false; //If true, changing the RealRoadSpeed of a unit automatically adjusts its SpeedBonusOnRoad according to a formula
 };
-//using this struct to store data to pass to the write function
-typedef struct unit_data
-{
-    int new_cp, new_speed,new_fuel, new_maxSpeed, new_realRoadSpeed;
-    float new_fuelTime,new_optical_strenght, new_speedBonus;
-}unit_data_t;
-typedef struct ammo_data 
-{
-    float new_PhysicalDamages, suppressDamage,new_NoiseDissimulationMalus,new_TempsEntreDeuxSalves,new_TempsDeVisee;
-    int new_max_range,new_min_range,suppressDamageRadius,new_ShotsBeforeMaxNoise;
-     
-}ammo_data_t;
+
 //used to store paths
 typedef struct settings
 {
@@ -88,8 +84,8 @@ namespace GUI
     std::vector<Unit*> returnSelectedUnits(std::vector<Unit*> unit_vector[], params* inputs);
     std::vector<Ammo*> returnSelectedAmmo(std::vector<Ammo*> ammo_vector[], params* inputs);
     void unitWindow(int unitcount, std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vector[], params* user_inputs, settings_t* settings, bool* x_button,HWND hWnd);
-    void unitSelectedWindow(params* user_inputs,settings_t* settings, std::string* ack_type);
-    void ammoSelectedWindow(params* user_inputs, settings_t* settings);
+    void unitSelectedWindow(std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vector[],params* user_inputs,settings_t* settings, std::string* ack_type);
+    void ammoSelectedWindow(std::vector<Ammo*> weapon_vector[], std::vector<Unit*> unit_vector[],params* user_inputs, settings_t* settings);
     void updateStatsView(params* user_inputs, int indexToSkip);
     void showSearchResults(std::vector<Unit*> units, std::vector<Unit*>  user_inputs);
     void showSearchResults(std::vector<Ammo*> ammunition, std::vector<Ammo*> ammunitionToMod);
@@ -107,7 +103,7 @@ int getDataFromFile(std::vector<Unit*> unit_vector[],std::vector<Ammo*> weapons_
 void readLine(std::string line, int* line_counter,int* line_counter_all, int* units_counter, int* index, std::vector<Unit*> unit_vector[], std::vector<Ammo*> ammo_vector[], int forUnit);
 void readLine(std::string original_line, int* line_counter_relative, int* line_counter, int* weapon_counter, std::vector<Ammo*> weapon_vector[]);
 Ammo* findAmmoPtrWithName(std::vector<Ammo*> vector[], std::string name);
-bool writeData(params* modPtrs, unit_data_t* unit_data, ammo_data_t* ammo_data, settings_t settings, bool isUnit);
+bool writeData(params* modPtrs, settings_t settings, bool isUnit);
 std::vector<Unit*> searchUnit(std::string str, std::vector<Unit*> unit_vector[]);
 std::vector<Ammo*> searchUnit(std::string str, std::vector<Ammo*> weapon_vector[]);
 bool is_file_exist(const char* fileName);
@@ -115,3 +111,4 @@ bool isPathExist(const std::string& s);
 bool checkFiles(std::string s);
 bool checkDirectoryTxt();
 void updateImGuiWindow(HWND hWnd);
+void showModif(std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vector[]);

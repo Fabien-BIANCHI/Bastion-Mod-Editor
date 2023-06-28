@@ -25,6 +25,7 @@ void GUI::displayUnits(std::string filter, int unitcount, std::vector<Unit*> uni
                 displayGuns(unit_vector->at(i));
                 ImGui::EndTooltip();
             }
+            /*
             ImGui::SameLine();
             id2.append(unit_vector->at(i)->name.c_str());
             if (ImGui::Button(id2.c_str())) {
@@ -34,6 +35,7 @@ void GUI::displayUnits(std::string filter, int unitcount, std::vector<Unit*> uni
                 inputs->ammunitionToModify = displayGuns(unit_vector->at(i));
                 inputs->modify_ammo = true;
             }
+            */
             (*counter) += 1;
         }
         else if (strcmp(filter.c_str(), unit_vector->at(i)->acknow_unit_type.c_str()) == 0) { //par filtre
@@ -46,6 +48,7 @@ void GUI::displayUnits(std::string filter, int unitcount, std::vector<Unit*> uni
                 displayGuns(unit_vector->at(i));
                 ImGui::EndTooltip();
             }
+            /*
             ImGui::SameLine();
             id.append(unit_vector->at(i)->name.c_str());
             if (ImGui::Button(id.c_str())) {
@@ -56,6 +59,7 @@ void GUI::displayUnits(std::string filter, int unitcount, std::vector<Unit*> uni
                 if(inputs->ammunitionToModify.size())
                     inputs->modify_ammo = true;
             }
+            */
             (*counter) += 1;
         }
     }
@@ -81,7 +85,7 @@ std::vector<Ammo*> GUI::displayGuns(Unit* currentUnit) {
                 }
             }
             else {
-                printf("ammoPtr is empty\n");
+                ImGui::Text("nothing");
                 return { 0 };
             }
         }
@@ -179,6 +183,7 @@ void GUI::displayAmmo(std::vector<Ammo*> weapon_vector[], std::vector<Unit*> uni
                                     findUnitUsingAmmo(weapon_vector->at(h),unit_vector);
                                     ImGui::EndTooltip();
                                 }
+                                /*
                                 ImGui::SameLine();
                                 id.append(weapon_vector->at(h)->name.c_str());
                                 if (ImGui::Button(id.c_str())) {
@@ -188,6 +193,7 @@ void GUI::displayAmmo(std::vector<Ammo*> weapon_vector[], std::vector<Unit*> uni
                                     if(inputs->unitsToModify.size())
                                         inputs->modify_units = true;
                                 }
+                                */
                             }
                         }
                     }
@@ -343,6 +349,7 @@ void GUI::navBarButtons(std::vector<Unit*> unit_vector[], std::vector<Ammo*> wea
         user_inputs->ammunitionToModify = returnSelectedAmmo(weapon_vector, user_inputs);
         if (user_inputs->unitsToModify.size()) {
             user_inputs->modify_units = true;
+            user_inputs->unitDone = false;
             user_inputs->old_e_value = -1;
         }
         else {
@@ -350,6 +357,7 @@ void GUI::navBarButtons(std::vector<Unit*> unit_vector[], std::vector<Ammo*> wea
         }
         if (user_inputs->ammunitionToModify.size()) {
             user_inputs->modify_ammo = true;
+            user_inputs->ammoDone = false;
             user_inputs->old_e_value_ammo = -1;
         }
         else {
@@ -361,6 +369,7 @@ void GUI::navBarButtons(std::vector<Unit*> unit_vector[], std::vector<Ammo*> wea
 //main window
 void GUI::unitWindow(int unitcount, std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vector[], params* user_inputs, settings_t* settings, bool* x_button,HWND hWnd)
 {
+
     int counter;
     std::string ack_type[NUMBER_OF_ACKTYPE]; //string array containing all "AcknowUnitType"
     
@@ -452,12 +461,21 @@ void GUI::unitWindow(int unitcount, std::vector<Unit*> unit_vector[], std::vecto
         
         displayAmmo(weapon_vector,unit_vector, ammo_family,ammo_type, user_inputs);
     }
+
+
     if (user_inputs->modify_units) {
-        unitSelectedWindow(user_inputs,settings, ack_type);
+        if (!user_inputs->unitDone)
+            unitSelectedWindow(unit_vector, weapon_vector, user_inputs, settings, ack_type);
+        else
+            user_inputs->modify_units = false;
     }
     if (user_inputs->modify_ammo) {
-        ammoSelectedWindow(user_inputs, settings);
+        if (!user_inputs->ammoDone)
+            ammoSelectedWindow(weapon_vector, unit_vector, user_inputs, settings);
+        else
+            user_inputs->modify_ammo = false;
     }
+   
     ImGui::End();
 }
 void GUI::updateStatsView(params* user_inputs,int indexToSkip) {
@@ -469,9 +487,14 @@ void GUI::updateStatsView(params* user_inputs,int indexToSkip) {
         }
     }
 }
-void GUI::ammoSelectedWindow(params* user_inputs,settings_t* settings) {
+void GUI::ammoSelectedWindow(std::vector<Ammo*> weapon_vector[], std::vector<Unit*> unit_vector[],params* user_inputs,settings_t* settings) {
 
-    ImGui::Begin("Selected Ammunitions");
+   
+    ImGui::Begin("Selected Ammunitions",&user_inputs->statusAmmoModWind);
+    if (!user_inputs->statusAmmoModWind) {
+        user_inputs->ammoDone = true;
+        user_inputs->statusAmmoModWind = true;
+    }
 
     static int e = 0;
     static float physical_damage = 0.f;
@@ -493,13 +516,13 @@ void GUI::ammoSelectedWindow(params* user_inputs,settings_t* settings) {
     std::string id = "##"; //https://github.com/ocornut/imgui/blob/master/docs/FAQ.md#q-about-the-id-stack-system
 
     
-        for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++) {
 
-            id.append(user_inputs->ammunitionToModify[i]->name);
-            ImGui::RadioButton(id.c_str(), &e, i);
-            ImGui::SameLine();
-            ImGui::Text("%s", user_inputs->ammunitionToModify[i]->name.c_str());
-        }
+        id.append(user_inputs->ammunitionToModify[i]->name);
+        ImGui::RadioButton(id.c_str(), &e, i);
+        ImGui::SameLine();
+        ImGui::Text("%s", user_inputs->ammunitionToModify[i]->name.c_str());
+    }
 
     if (e >= size) e = 0;
     if ((e < size) && (e != user_inputs->old_e_value_ammo)) {
@@ -552,7 +575,7 @@ void GUI::ammoSelectedWindow(params* user_inputs,settings_t* settings) {
     //reusing id variable for different purpose
     id = "update the ";
     id.append(str);
-    id.append(" selected units");
+    id.append(" selected ammo");
 
     int g = 2; //green
     ImGui::PushID(g);
@@ -560,35 +583,49 @@ void GUI::ammoSelectedWindow(params* user_inputs,settings_t* settings) {
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(g / 7.0f, 0.7f, 0.7f));
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(g / 7.0f, 0.8f, 0.8f));
 
+  
     if (ImGui::Button(id.c_str())) {
 
-        ammo_data_t data = {};
-        data.new_PhysicalDamages = physical_damage;
-        data.new_max_range = max_range;
-        data.new_min_range = min_range;
-        data.suppressDamage = suppress_damage;
-        data.suppressDamageRadius = suppress_damage_radius;
-        data.new_NoiseDissimulationMalus = NoiseDissimulationMalus;
-        data.new_ShotsBeforeMaxNoise = ShotsBeforeMaxNoise;
-        data.new_TempsDeVisee = TempsDeVisee;
-        data.new_TempsEntreDeuxSalves = TempsEntreDeuxSalves;
-
-        writeData(user_inputs, nullptr, &data, *settings, false);
+        for (int k = 0; k < size; k++) {
+            user_inputs->ammunitionToModify.at(k)->new_PhysicalDamages = physical_damage;
+            user_inputs->ammunitionToModify.at(k)->new_max_range = max_range;
+            user_inputs->ammunitionToModify.at(k)->new_min_range = min_range;
+            user_inputs->ammunitionToModify.at(k)->new_suppressDamage = suppress_damage;
+            user_inputs->ammunitionToModify.at(k)->new_suppressDamageRadius = suppress_damage_radius;
+            user_inputs->ammunitionToModify.at(k)->new_NoiseDissimulationMalus = NoiseDissimulationMalus;
+            user_inputs->ammunitionToModify.at(k)->new_ShotsBeforeMaxNoise = ShotsBeforeMaxNoise;
+            user_inputs->ammunitionToModify.at(k)->new_TempsDeVisee = TempsDeVisee;
+            user_inputs->ammunitionToModify.at(k)->new_TempsEntreDeuxSalves = TempsEntreDeuxSalves;
+        }
+        if (writeData(user_inputs, *settings, false)) {
+            user_inputs->restartApp = true;
+        }
+            
     }
     ImGui::PopStyleColor(3);
     ImGui::PopID();
 
     ImGui::Separator();
+    if (user_inputs->restartApp) {
+        
+        showModif(unit_vector, weapon_vector);
+    }
+
+    
     ImGui::End();
 }
 //window opened after button "modify" is pressed
-void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings, std::string* ack_type) {
+void GUI::unitSelectedWindow(std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vector[],params* user_inputs,settings_t* settings, std::string* ack_type) {
 
 
-    ImGui::Begin("Selected Units");
+    ImGui::Begin("Selected Units",&user_inputs->statusUnitModWind);
+    if (!user_inputs->statusUnitModWind) {
+        user_inputs->unitDone = true;
+        user_inputs->statusUnitModWind = true;
+    }
+        
 
     static int cp = 0;
-    static int speed = 0;
     static int e = 0; //holding info about which radio button is selected, starting at index 0
     static int fuel = 0;
     static float fuelTime = 0.f;
@@ -689,9 +726,9 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings, std::stri
             ImGui::SameLine();
             if (ImGui::Button("Help"))
                 ImGui::OpenPopup("auto_help");
-#pragma region auto_help def
+
             const char help[] = "With auto enabled, speedBonusOnRoad is calculated in a way that\nthe on road speed remains the same independent of \nthe value of maxSpeed AKA the off road speed.\n\nFurthermore, changing realRoadSpeed (UI variable only) will increase \nor decrease speedBonusOnRoad in a way that the on road speed will change \nproportionally to the change made to RealRoadSpeed";
-#pragma endregion
+
 
             if (ImGui::BeginPopup("auto_help"))
             {
@@ -750,23 +787,123 @@ void GUI::unitSelectedWindow(params* user_inputs,settings_t* settings, std::stri
     ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(g / 7.0f, 0.6f, 0.6f));
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(g / 7.0f, 0.7f, 0.7f));
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(g / 7.0f, 0.8f, 0.8f));
+
+
     if (ImGui::Button(id.c_str())) {
 
-        unit_data_t data = { };
-        data.new_cp = cp;
-        data.new_speed = speed;
-        data.new_fuel = fuel;
-        data.new_fuelTime = fuelTime;
-        data.new_maxSpeed = maxspeed;
-        data.new_speedBonus = speedBonus;
-        data.new_optical_strenght = opticalStrenght;
-        data.new_realRoadSpeed = realRoadSpeed;
-        writeData(user_inputs, &data,nullptr,*settings,true);
+        for (int u = 0; u < size; u++) {
+            user_inputs->unitsToModify.at(u)->new_cp = cp;
+            user_inputs->unitsToModify.at(u)->new_fuel = fuel;
+            user_inputs->unitsToModify.at(u)->new_fuelTime = fuelTime;
+            user_inputs->unitsToModify.at(u)->new_maxSpeed = maxspeed;
+            user_inputs->unitsToModify.at(u)->new_speedBonus = speedBonus;
+            user_inputs->unitsToModify.at(u)->new_optical_strenght = opticalStrenght;
+            user_inputs->unitsToModify.at(u)->new_realRoadSpeed = realRoadSpeed;
+        }
+    
+
+        if (writeData(user_inputs, *settings, true)) {
+            user_inputs->restartApp = true;
+        }
+            
     }
     ImGui::PopStyleColor(3);
     ImGui::PopID();
-
+    if (user_inputs->restartApp) {
+        showModif(unit_vector,weapon_vector);
+    }
     ImGui::End();
+}
+void showModif(std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vector[]) {
+
+    ImGui::Text("Units: ");
+    Unit* curr = nullptr;
+    if (unit_vector) {
+        int size_unit = unit_vector->size();
+
+        for (int i = 0; i < size_unit; i++) {
+            curr = unit_vector->at(i);
+
+            if (curr->cost != curr->new_cp) {
+                ImGui::Text("   %s ", curr->name.c_str()); ImGui::SameLine();
+                ImGui::Text("cost: %d -> %d", curr->cost, curr->new_cp);
+            }
+            if (curr->maxSpeed != curr->new_maxSpeed) {
+                ImGui::Text("   %s ", curr->name.c_str()); ImGui::SameLine();
+                ImGui::Text("max_speed: %d -> %d",curr->maxSpeed, curr->new_maxSpeed);
+            }
+            if (curr->speedBonus != curr->new_speedBonus) {
+                ImGui::Text("   %s ", curr->name.c_str()); ImGui::SameLine();
+                ImGui::Text("speed_bonus: %f -> %f", curr->speedBonus, curr->new_speedBonus);
+            }
+            if (curr->realRoadSpeed != curr->new_realRoadSpeed) {
+                ImGui::Text("   %s ", curr->name.c_str()); ImGui::SameLine();
+                ImGui::Text("real_road_speed: %d -> %d", curr->realRoadSpeed, curr->new_realRoadSpeed);
+            }
+            if (curr->fuel != curr->new_fuel) {
+                ImGui::Text("   %s ", curr->name.c_str()); ImGui::SameLine();
+                ImGui::Text("fuel: %d -> %d", curr->fuel, curr->new_fuel);
+            }
+            if (curr->fuelTime != curr->new_fuelTime) {
+                ImGui::Text("   %s ", curr->name.c_str()); ImGui::SameLine();
+                ImGui::Text("real_road_speed: %d -> %d", curr->fuelTime, curr->new_fuelTime);
+            }
+            if (curr->opticalStrenght != curr->new_optical_strenght) {
+                ImGui::Text("   %s ", curr->name.c_str()); ImGui::SameLine();
+                ImGui::Text("optical_strenght: %f -> %f", curr->opticalStrenght, curr->new_optical_strenght);
+            }
+        }
+    }
+    
+    ImGui::Separator();
+
+    ImGui::Text("Ammo: ");
+    Ammo* current = nullptr;
+    if (weapon_vector) {
+        int size_weapon = weapon_vector->size();
+
+        for (int k = 0; k < size_weapon; k++) {
+            current = weapon_vector->at(k);
+            if (current->physicalDamages != current->new_PhysicalDamages) {
+                ImGui::Text("   %s ", current->name.c_str()); ImGui::SameLine();
+                ImGui::Text("physicalDamages: %f -> %f", current->physicalDamages, current->new_PhysicalDamages);
+            }
+            if (current->min_range != current->new_min_range) {
+                ImGui::Text("   %s ", current->name.c_str()); ImGui::SameLine();
+                ImGui::Text("min_range: %d -> %d", current->min_range, current->new_min_range);
+            }
+            if (current->max_range != current->new_max_range) {
+                ImGui::Text("   %s ", current->name.c_str()); ImGui::SameLine();
+                ImGui::Text("max_range: %d -> %d", current->max_range, current->new_max_range);
+            }
+            if (current->suppressDamage != current->new_suppressDamage) {
+                ImGui::Text("   %s ", current->name.c_str()); ImGui::SameLine();
+                ImGui::Text("suppressDamage: %f -> %f", current->suppressDamage, current->new_suppressDamage);
+            }
+            if (current->radiusSuppressDamage != current->new_suppressDamageRadius) {
+                ImGui::Text("   %s ", current->name.c_str()); ImGui::SameLine();
+                ImGui::Text("radiusSuppressDamage: %d -> %d", current->radiusSuppressDamage, current->new_suppressDamageRadius);
+            }
+            if (current->NoiseDissimulationMalus != current->new_NoiseDissimulationMalus) {
+                ImGui::Text("   %s ", current->name.c_str()); ImGui::SameLine();
+                ImGui::Text("NoiseDissimulationMalus: %f -> %f", current->NoiseDissimulationMalus, current->new_NoiseDissimulationMalus);
+            }
+            if (current->ShotsBeforeMaxNoise != current->new_ShotsBeforeMaxNoise) {
+                ImGui::Text("   %s ", current->name.c_str()); ImGui::SameLine();
+                ImGui::Text("ShotsBeforeMaxNoise: %d -> %d", current->ShotsBeforeMaxNoise, current->new_ShotsBeforeMaxNoise);
+            }
+            if (current->TempsDeVisee != current->new_TempsDeVisee) {
+                ImGui::Text("   %s ", current->name.c_str()); ImGui::SameLine();
+                ImGui::Text("TempsDeVisee: %f -> %f", current->TempsDeVisee, current->new_TempsDeVisee);
+            }
+            if (current->TempsEntreDeuxSalves != current->new_TempsEntreDeuxSalves) {
+                ImGui::Text("   %s ", current->name.c_str()); ImGui::SameLine();
+                ImGui::Text("TempsEntreDeuxSalves: %f -> %f", current->TempsEntreDeuxSalves, current->new_TempsEntreDeuxSalves);
+            }
+        }
+    }
+    
+    ImGui::Separator();
 }
 //display the result and also add to the vector "unitToMod" if a unit is selected in the vector "units"
 void GUI::showSearchResults(std::vector<Unit*> units, std::vector<Unit*> unitToMod) {
