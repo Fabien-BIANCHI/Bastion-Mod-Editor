@@ -13,11 +13,11 @@ std::vector<Ammo*> allWeapons;
 
 //entry point 
 int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow) {
-    /*
+    
     AllocConsole();
     FILE* f;
     freopen_s(&f, "CONOUT$", "w", stdout);
-    */
+    
     // Create application window
     //ImGui_ImplWin32_EnableDpiAwareness();
     WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"warno_api", nullptr };
@@ -95,10 +95,13 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
     // Our state
     params inputs = { };                //store user choices
     settings_t settings = { };          //paths
-    bool show_demo_window = false;       //doc
+    bool show_demo_window = true;       //doc
     bool read_once = false;             //only read the file once
-    
-    
+
+    bool ret1 = LoadTextureFromFile("img/folder.png", &inputs.folder_tex, &inputs.folder_width, &inputs.folder_height);
+    IM_ASSERT(ret1);
+    bool ret2 = LoadTextureFromFile("img/file.png", &inputs.file_tex, &inputs.file_width, &inputs.file_height);
+    IM_ASSERT(ret2);
 
     // Main loop
     bool x_button = true;
@@ -153,8 +156,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
             GUI::unitWindow(allUnits.size(), &allUnits,&allWeapons, &inputs,&settings,&x_button,hwnd);
         }
         else {
-            GUI::directoryWindow(&inputs, &x_button);
-            read_once = true;
+            read_once = directoryWindow(&inputs, &x_button);
         }
         
 
@@ -186,32 +188,39 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
             ResetDevice();
     }
 
-    if (remove(settings.ud_original_path.c_str())) {//delete the old ndf file
-        MessageBox(NULL, "Fail removing old UnitDescriptor.ndf", NULL, NULL);
+    if (settings.ud_original_path.size() && settings.ud_new_path.size()) {
+        if (remove(settings.ud_original_path.c_str())) {//delete the old ndf file
+            MessageBox(NULL, "Fail removing old UnitDescriptor.ndf", NULL, NULL);
+        }
+        if (rename(settings.ud_new_path.c_str(), settings.ud_original_path.c_str())) { //rename the txt file 
+            MessageBox(NULL, "Fail renaming new UnitDesc to old UnitDesc name", NULL, NULL);
+        }
     }
-    if (rename(settings.ud_new_path.c_str(), settings.ud_original_path.c_str())) { //rename the txt file 
-        MessageBox(NULL, "Fail renaming new UnitDesc to old UnitDesc name", NULL, NULL);
+    if (settings.am_original_path.size() && settings.am_new_path.size()) {
+        if (remove(settings.am_original_path.c_str())) {//delete the old ndf file
+            MessageBox(NULL, "Fail removing old Ammunition.ndf", NULL, NULL);
+        }
+        if (rename(settings.am_new_path.c_str(), settings.am_original_path.c_str())) { //rename the txt file 
+            MessageBox(NULL, "Fail renaming new Ammunition to old Ammuniton name", NULL, NULL);
+        }
     }
-
-    if (remove(settings.am_original_path.c_str())) {//delete the old ndf file
-        MessageBox(NULL, "Fail removing old Ammunition.ndf", NULL, NULL);
+    if (settings.wd_new_path.size()) {
+        if (remove(settings.wd_new_path.c_str())) {
+            MessageBox(NULL, "Fail removing weapon desc .txt", NULL, NULL);
+        }
     }
-    if (rename(settings.am_new_path.c_str(), settings.am_original_path.c_str())) { //rename the txt file 
-        MessageBox(NULL, "Fail renaming new Ammunition to old Ammuniton name", NULL, NULL);
-    }
-
-    if (remove(settings.wd_new_path.c_str())) {
-        MessageBox(NULL, "Fail removing weapon desc .txt", NULL, NULL);
-    }
+  
     delete[] inputs.checkboxes_allUnits;
+    
+   
 
     ImGui_ImplDX9_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
-    /*
+    
     fclose(f);
     FreeConsole();
-    */
+    
     CleanupDeviceD3D();
     DestroyWindow(hwnd);
     UnregisterClassW(wc.lpszClassName, wc.hInstance);
@@ -312,4 +321,21 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         break;
     }
     return ::DefWindowProcW(hWnd, msg, wParam, lParam);
+}
+// Simple helper function to load an image into a DX9 texture with common settings
+bool LoadTextureFromFile(const char* filename, PDIRECT3DTEXTURE9* out_texture, int* out_width, int* out_height)
+{
+    // Load texture from disk
+    PDIRECT3DTEXTURE9 texture;
+    HRESULT hr = D3DXCreateTextureFromFileA(g_pd3dDevice, filename, &texture);
+    if (hr != S_OK)
+        return false;
+
+    // Retrieve description of the texture surface so we can access its size
+    D3DSURFACE_DESC my_image_desc;
+    texture->GetLevelDesc(0, &my_image_desc);
+    *out_texture = texture;
+    *out_width = (int)my_image_desc.Width;
+    *out_height = (int)my_image_desc.Height;
+    return true;
 }

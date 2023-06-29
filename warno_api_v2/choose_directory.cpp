@@ -4,6 +4,12 @@
 #include "header.h"
 #include <sys/types.h>
 #include <sys/stat.h>
+#include "dirent.h" 
+
+#define NORMAL_COLOR  "\x1B[0m"
+#define GREEN  "\x1B[32m"
+#define BLUE  "\x1B[34m"
+
 
 //Vérifier si le chemin existe
 bool isPathExist(const std::string& s)
@@ -48,18 +54,59 @@ bool checkDirectoryTxt() {
     remove("directories.txt");
     return false;
 }
+void show_dir_content(char* path,params* user_inputs)
+{
 
-void GUI::directoryWindow(params* user_inputs, bool* x_button) {
+    DIR* d = opendir(path); // open the path
+    if (d == NULL) return; // if was not able, return
+    struct dirent* dir; // for the directory entries
+    while ((dir = readdir(d)) != NULL) // if we were able to read somehting from the directory
+    {
+        
+        if (dir->d_type != DT_DIR) // if the type is not directory just print it with blue color
+        {
+            ImGui::Image(user_inputs->file_tex, ImVec2(user_inputs->file_width * 0.025, user_inputs->file_height * 0.025));
+            ImGui::SameLine();
+            ImGui::Selectable(dir->d_name);
+        }
+        else
+            if (dir->d_type == DT_DIR && strcmp(dir->d_name, ".") != 0 && strcmp(dir->d_name, "..") != 0) // if it is a directory
+            {
+                ImGui::Image(user_inputs->folder_tex, ImVec2(user_inputs->folder_width * 0.05, user_inputs->folder_height * 0.05));
+                ImGui::SameLine();
+                if (ImGui::Selectable(dir->d_name)) {
+                    user_inputs->path.append(dir->d_name).append("\\");
+                }
+            }
+    }
+    closedir(d); // finally close the directory
+}
+
+bool fileExplorer(params* user_inputs) {
+
+
+    ImGui::Begin("File explorer");
+    
+    ImGui::Text(user_inputs->path.c_str());
+    ImGui::Separator();
+    
+    show_dir_content((char*)user_inputs->path.c_str(),user_inputs);
+
+    ImGui::End();
+
+    return true;
+}
+bool directoryWindow(params* user_inputs, bool* x_button) {
     if (checkDirectoryTxt())
     {
         user_inputs->status = params::VALID;
-        return;
+        return false;
     }
    
     ImGui::Begin("Directory Window",x_button);
-    ImGui::Text("Enter the path of your mod folder");
-    ImGui::InputText("<-path", user_inputs->user_path, IM_ARRAYSIZE(user_inputs->user_path));
 
+    ImGui::InputTextWithHint("##directory", "Enter the path of your mod folder", user_inputs->user_path, IM_ARRAYSIZE(user_inputs->user_path));
+    ImGui::SameLine();
     if (ImGui::Button("Use Directory"))
     {
         const char* path = user_inputs->user_path;
@@ -72,7 +119,7 @@ void GUI::directoryWindow(params* user_inputs, bool* x_button) {
                 user_inputs->status = params::VALID;
                 FILE* directory_path;
                 fopen_s(&directory_path, "directories.txt", "w");
-                if (!directory_path) { return; }
+                if (!directory_path) { ImGui::End(); return false; }
                 fputs(path, directory_path);
                 fclose(directory_path);
             }
@@ -90,15 +137,31 @@ void GUI::directoryWindow(params* user_inputs, bool* x_button) {
         }
 
     }
+    if (ImGui::Button("Browse file")) {
+        user_inputs->fileExplorer = true;
+    }
+    if (user_inputs->fileExplorer) {
+        fileExplorer(user_inputs);
+    }
+
     int status = user_inputs->status;
-    if (status == params::EMPTY_STRING)
+    if (status == params::EMPTY_STRING) {
         ImGui::Text("Enter a directory path");
-    else if (status == params::PATH_NOT_FOUND)
+        ImGui::End();
+        return false;
+    }    
+    else if (status == params::PATH_NOT_FOUND) {
         ImGui::Text("ERROR: Directory not found");
-    else if (status == params::FILES_MISSING)
+        ImGui::End();
+        return false;
+    } 
+    else if (status == params::FILES_MISSING) {
         ImGui::Text("ERROR: Missing files in Mod Folder");
+        ImGui::End();
+        return false;
+    }
+        
 
-
-    
     ImGui::End();
+    return true;
 }

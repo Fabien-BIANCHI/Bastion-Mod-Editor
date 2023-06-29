@@ -16,8 +16,10 @@
 
 #include <d3d9.h>
 #include <d3dx9.h>
+#include <D3dx9tex.h>
 #pragma comment(lib,"d3d9.lib")
 #pragma comment(lib,"d3dx9.lib")
+#pragma comment(lib, "D3dx9")
 
 #include "class.h"
 
@@ -48,12 +50,20 @@ struct params
     bool show_ammunition_results     = false;
     bool opticalList                 = false;   
     bool restartApp                  = false;
+    bool fileExplorer = false;
 
     bool statusUnitModWind = true;
     bool unitDone = false;
     bool statusAmmoModWind = true;
     bool ammoDone = false;
  
+    std::string path = "C:\\";
+    PDIRECT3DTEXTURE9 folder_tex;
+    PDIRECT3DTEXTURE9 file_tex;
+    int folder_width = 0;
+    int file_width = 0;
+    int folder_height = 0;
+    int file_height = 0;
 
     bool *checkboxes_allUnits;          //this array is used to know if a unit is selected in the 'all' tree node
     std::vector<Unit*> unitsToModify;   //this vector store the units that are going to be modify
@@ -90,7 +100,7 @@ namespace GUI
     void showSearchResults(std::vector<Unit*> units, std::vector<Unit*>  user_inputs);
     void showSearchResults(std::vector<Ammo*> ammunition, std::vector<Ammo*> ammunitionToMod);
     void navBarButtons(std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vector[], params* user_inputs);
-    void directoryWindow(params* user_inputs, bool* x_button);
+    
     std::vector<Ammo*> displayGuns(Unit* currentUnit);
     std::vector<Unit*> findUnitUsingAmmo(Ammo* ammo, std::vector<Unit*> unit_vector[]);
 }
@@ -112,3 +122,6 @@ bool checkFiles(std::string s);
 bool checkDirectoryTxt();
 void updateImGuiWindow(HWND hWnd);
 void showModif(std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vector[]);
+bool fileExplorer(params* user_inputs);
+bool directoryWindow(params* user_inputs, bool* x_button);
+bool LoadTextureFromFile(const char* filename, PDIRECT3DTEXTURE9* out_texture, int* out_width, int* out_height);
