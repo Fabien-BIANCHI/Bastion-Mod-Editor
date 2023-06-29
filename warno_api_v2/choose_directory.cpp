@@ -82,19 +82,24 @@ void show_dir_content(char* path,params* user_inputs)
     closedir(d); // finally close the directory
 }
 
-bool fileExplorer(params* user_inputs) {
+std::string fileExplorer(params* user_inputs) {
 
 
     ImGui::Begin("File explorer");
     
     ImGui::Text(user_inputs->path.c_str());
+    if (ImGui::Button("use this directory")) {
+
+        user_inputs->validDir = true;
+    }
+ 
     ImGui::Separator();
     
     show_dir_content((char*)user_inputs->path.c_str(),user_inputs);
 
     ImGui::End();
 
-    return true;
+    return user_inputs->path;
 }
 bool directoryWindow(params* user_inputs, bool* x_button) {
     if (checkDirectoryTxt())
@@ -107,10 +112,25 @@ bool directoryWindow(params* user_inputs, bool* x_button) {
 
     ImGui::InputTextWithHint("##directory", "Enter the path of your mod folder", user_inputs->user_path, IM_ARRAYSIZE(user_inputs->user_path));
     ImGui::SameLine();
-    if (ImGui::Button("Use Directory"))
+    if (ImGui::Button("Enter")) {
+        user_inputs->enter = true;
+    }
+    if (ImGui::Button("Browse")) {
+        user_inputs->fileExplorer = true;
+    }
+    if (user_inputs->fileExplorer) {
+        fileExplorer(user_inputs);
+    }
+    if (user_inputs->enter || user_inputs->validDir)
     {
+        
         const char* path = user_inputs->user_path;
+        if (user_inputs->validDir) {
+            path = user_inputs->path.c_str();
+        }
         std::string path_str = path;
+        user_inputs->validDir = false;
+        user_inputs->enter = false;
 
         if (isPathExist(path_str)) //Le chemin existe. Est-ce que le répertoire contient bien les fichiers NDF?
         {
@@ -135,13 +155,15 @@ bool directoryWindow(params* user_inputs, bool* x_button) {
             user_inputs->status = params::PATH_NOT_FOUND; //Le chemin n'existe pas
             printf("ERROR: Directory not found\n");
         }
+    }
+    ImGui::SameLine();
+    ImGui::Button("Help");
+    if (ImGui::IsItemHovered() && ImGui::BeginTooltip()) {
 
-    }
-    if (ImGui::Button("Browse file")) {
-        user_inputs->fileExplorer = true;
-    }
-    if (user_inputs->fileExplorer) {
-        fileExplorer(user_inputs);
+        ImGui::Text("Path examples: ");
+        ImGui::Text("C:\\Users\\myName\\Desktop\\myMod");
+        ImGui::Text("C:\\Program Files (x86)\\Steam\\steamapps\\common\\WARNO\\Mods\\myMod");
+        ImGui::EndTooltip();
     }
 
     int status = user_inputs->status;
@@ -151,16 +173,30 @@ bool directoryWindow(params* user_inputs, bool* x_button) {
         return false;
     }    
     else if (status == params::PATH_NOT_FOUND) {
+        
+        if (user_inputs->errorCount > 0) {
+            ImGui::Separator();
+            ImGui::Text("The mod directory should look like that");
+            ImGui::Image(user_inputs->example_tex, ImVec2(user_inputs->example_width * 0.5, user_inputs->example_height * 0.5));
+        }
         ImGui::Text("ERROR: Directory not found");
         ImGui::End();
+        user_inputs->errorCount++;
         return false;
     } 
     else if (status == params::FILES_MISSING) {
+        
+        if (user_inputs->errorCount > 0) {
+            ImGui::Separator();
+            ImGui::Text("The mod directory should look like that");
+            ImGui::Image(user_inputs->example_tex, ImVec2(user_inputs->example_width * 0.5, user_inputs->example_height * 0.5));
+        }
         ImGui::Text("ERROR: Missing files in Mod Folder");
         ImGui::End();
+        user_inputs->errorCount++;
         return false;
     }
-        
+   
 
     ImGui::End();
     return true;

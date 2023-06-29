@@ -56,15 +56,22 @@ struct params
     bool unitDone = false;
     bool statusAmmoModWind = true;
     bool ammoDone = false;
- 
+    
+    bool validDir = false;
+    bool enter = false;
     std::string path = "C:\\";
     PDIRECT3DTEXTURE9 folder_tex;
     PDIRECT3DTEXTURE9 file_tex;
+    PDIRECT3DTEXTURE9 example_tex;
+   
     int folder_width = 0;
     int file_width = 0;
+    int example_width = 0;
     int folder_height = 0;
     int file_height = 0;
+    int example_height = 0;
 
+    int errorCount = 0;
     bool *checkboxes_allUnits;          //this array is used to know if a unit is selected in the 'all' tree node
     std::vector<Unit*> unitsToModify;   //this vector store the units that are going to be modify
     std::vector<Ammo*> ammunitionToModify;
@@ -122,6 +129,6 @@ bool checkFiles(std::string s);
 bool checkDirectoryTxt();
 void updateImGuiWindow(HWND hWnd);
 void showModif(std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vector[]);
-bool fileExplorer(params* user_inputs);
+std::string fileExplorer(params* user_inputs);
 bool directoryWindow(params* user_inputs, bool* x_button);
 bool LoadTextureFromFile(const char* filename, PDIRECT3DTEXTURE9* out_texture, int* out_width, int* out_height);

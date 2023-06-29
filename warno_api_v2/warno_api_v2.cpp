@@ -13,11 +13,11 @@ std::vector<Ammo*> allWeapons;
 
 //entry point 
 int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow) {
-    
+    /*
     AllocConsole();
     FILE* f;
     freopen_s(&f, "CONOUT$", "w", stdout);
-    
+    */
     // Create application window
     //ImGui_ImplWin32_EnableDpiAwareness();
     WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"warno_api", nullptr };
@@ -95,13 +95,15 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
     // Our state
     params inputs = { };                //store user choices
     settings_t settings = { };          //paths
-    bool show_demo_window = true;       //doc
+    bool show_demo_window = false;       //doc
     bool read_once = false;             //only read the file once
 
     bool ret1 = LoadTextureFromFile("img/folder.png", &inputs.folder_tex, &inputs.folder_width, &inputs.folder_height);
     IM_ASSERT(ret1);
     bool ret2 = LoadTextureFromFile("img/file.png", &inputs.file_tex, &inputs.file_width, &inputs.file_height);
     IM_ASSERT(ret2);
+    bool ret3 = LoadTextureFromFile("img/example.png", &inputs.example_tex, &inputs.example_width, &inputs.example_height);
+    IM_ASSERT(ret3);
 
     // Main loop
     bool x_button = true;
@@ -217,10 +219,10 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
     ImGui_ImplDX9_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
-    
+    /*
     fclose(f);
     FreeConsole();
-    
+    */
     CleanupDeviceD3D();
     DestroyWindow(hwnd);
     UnregisterClassW(wc.lpszClassName, wc.hInstance);
