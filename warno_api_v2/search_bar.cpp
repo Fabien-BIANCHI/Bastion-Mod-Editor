@@ -29,10 +29,14 @@ std::string removeUnderscore(std::string str) {
 /// </summary>
 /// <param name="str"></param>
 /// <returns></returns>
-std::vector<Unit*> searchUnit(std::string str, std::vector<Unit*> unit_vector[]) {
+std::vector<Unit*> searchUnit(std::string str, std::vector<Unit*> unit_vector[],params* user_inputs) {
 
 	std::vector<Unit*> results;
 	Unit* current = nullptr;
+	if (!strcmp(str.c_str(), "")) {
+		user_inputs->searchError = true;
+		return results;
+	}
 	for (int i = 0; i < unit_vector->size(); i++) {
 
 		current = unit_vector->at(i);
@@ -51,14 +55,19 @@ std::vector<Unit*> searchUnit(std::string str, std::vector<Unit*> unit_vector[])
 		}
 		
 	}
-
+	user_inputs->searchError = false;
 	return results;
 }
 //overloaded function
-std::vector<Ammo*> searchUnit(std::string str, std::vector<Ammo*> weapon_vetor[]) {
+std::vector<Ammo*> searchUnit(std::string str, std::vector<Ammo*> weapon_vetor[], params* user_inputs) {
 
 	std::vector<Ammo*> results;
 	Ammo* current = nullptr;
+	if (!strcmp(str.c_str(), "")) {
+		user_inputs->searchError = true;
+		return results;
+	}
+
 	for (int i = 0; i < weapon_vetor->size(); i++) {
 
 		current = weapon_vetor->at(i);
@@ -77,6 +86,6 @@ std::vector<Ammo*> searchUnit(std::string str, std::vector<Ammo*> weapon_vetor[]
 		}
 
 	}
-
+	user_inputs->searchError = false;
 	return results;
 }

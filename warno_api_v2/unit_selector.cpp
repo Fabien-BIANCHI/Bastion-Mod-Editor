@@ -313,13 +313,13 @@ std::vector<Ammo*> GUI::returnSelectedAmmo(std::vector<Ammo*> weapon_vector[], p
 }
 void GUI::navBarButtons(std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vector[], params* user_inputs) {
     if (ImGui::Button("search in Unit")) {
-        user_inputs->search_unit_results = searchUnit(user_inputs->str1, unit_vector);
+        user_inputs->search_unit_results = searchUnit(user_inputs->str1, unit_vector,user_inputs);
 
         user_inputs->show_unit_results = true;
     }
     ImGui::SameLine();
     if (ImGui::Button("search in Ammunition")) {
-        user_inputs->search_ammunition_results = searchUnit(user_inputs->str1, weapon_vector);
+        user_inputs->search_ammunition_results = searchUnit(user_inputs->str1, weapon_vector,user_inputs);
         user_inputs->show_ammunition_results = true;
     }
     ImGui::SameLine();
@@ -364,7 +364,9 @@ void GUI::navBarButtons(std::vector<Unit*> unit_vector[], std::vector<Ammo*> wea
             user_inputs->modify_ammo = false;
         }
     }
-   
+    if (user_inputs->searchError) {
+        ImGui::Text("Enter at least 1 character to use the searchbar");
+    }
 }
 //main window
 void GUI::unitWindow(int unitcount, std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vector[], params* user_inputs, settings_t* settings, bool* x_button,HWND hWnd)

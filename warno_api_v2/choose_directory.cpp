@@ -21,8 +21,8 @@ bool isPathExist(const std::string& s)
 //Vérifie si il y a bien les fichiers ndf nécéssaires avec le bon chemin
 bool checkFiles(std::string s)
 {
-    if (!isPathExist(s + "/GameData/Generated/Gameplay/Gfx/UniteDescriptor.ndf")) {}
-    else if (!isPathExist(s + "/GameData/Generated/Gameplay/Gfx/Ammunition.ndf")) {}
+    if (!isPathExist(s + "\\GameData\\Generated\\Gameplay\\Gfx\\UniteDescriptor.ndf")) {}
+    else if (!isPathExist(s + "\\GameData\\Generated\\Gameplay\\Gfx\\Ammunition.ndf")) {}
     else return true;
 
     return false;
@@ -105,7 +105,6 @@ bool directoryWindow(params* user_inputs, bool* x_button) {
     if (checkDirectoryTxt())
     {
         user_inputs->status = params::VALID;
-        return false;
     }
    
     ImGui::Begin("Directory Window",x_button);

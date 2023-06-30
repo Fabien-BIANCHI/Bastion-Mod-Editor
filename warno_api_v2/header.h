@@ -50,15 +50,16 @@ struct params
     bool show_ammunition_results     = false;
     bool opticalList                 = false;   
     bool restartApp                  = false;
-    bool fileExplorer = false;
+    bool fileExplorer                = false;
+    bool searchError                 = false;
 
-    bool statusUnitModWind = true;
-    bool unitDone = false;
-    bool statusAmmoModWind = true;
-    bool ammoDone = false;
+    bool statusUnitModWind           = true;
+    bool unitDone                    = false;
+    bool statusAmmoModWind           = true;
+    bool ammoDone                    = false;
     
-    bool validDir = false;
-    bool enter = false;
+    bool validDir                    = false;
+    bool enter                       = false;
     std::string path = "C:\\";
     PDIRECT3DTEXTURE9 folder_tex;
     PDIRECT3DTEXTURE9 file_tex;
@@ -121,8 +122,8 @@ void readLine(std::string line, int* line_counter,int* line_counter_all, int* un
 void readLine(std::string original_line, int* line_counter_relative, int* line_counter, int* weapon_counter, std::vector<Ammo*> weapon_vector[]);
 Ammo* findAmmoPtrWithName(std::vector<Ammo*> vector[], std::string name);
 bool writeData(params* modPtrs, settings_t settings, bool isUnit);
-std::vector<Unit*> searchUnit(std::string str, std::vector<Unit*> unit_vector[]);
-std::vector<Ammo*> searchUnit(std::string str, std::vector<Ammo*> weapon_vector[]);
+std::vector<Unit*> searchUnit(std::string str, std::vector<Unit*> unit_vector[], params* user_inputs);
+std::vector<Ammo*> searchUnit(std::string str, std::vector<Ammo*> weapon_vector[], params* user_inputs);
 bool is_file_exist(const char* fileName);
 bool isPathExist(const std::string& s);
 bool checkFiles(std::string s);
