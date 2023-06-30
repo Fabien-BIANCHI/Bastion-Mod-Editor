@@ -81,18 +81,48 @@ void show_dir_content(char* path,params* user_inputs)
     }
     closedir(d); // finally close the directory
 }
+int numberOfSlash(std::string* str) {
+    int count = 0;
+    int size = str->size();
+    for (int i = 0; i < size; i++) {
+        if (str->at(i) == '\\') {
+            count++;
+        }
+    }
+    return count;
+}
+void backPath(std::string* str) {
 
+    int count = 0;
+    if (!strcmp(str->c_str(), "C:\\")) {
+        return;
+    }
+    int nb = numberOfSlash(str);
+    for (int i = 0; i < str->size(); i++) {
+        if (str->at(i) == '\\') {
+            count++;
+        }
+        if (count == nb - 1) {
+            *str = str->substr(0, i+1);
+            break;
+        }
+    }
+}
 std::string fileExplorer(params* user_inputs) {
 
 
     ImGui::Begin("File explorer");
     
+    if (ImGui::SmallButton("<-")) {
+        backPath(&user_inputs->path);
+    }
+    ImGui::SameLine();
     ImGui::Text(user_inputs->path.c_str());
     if (ImGui::Button("use this directory")) {
 
         user_inputs->validDir = true;
     }
- 
+
     ImGui::Separator();
     
     show_dir_content((char*)user_inputs->path.c_str(),user_inputs);
