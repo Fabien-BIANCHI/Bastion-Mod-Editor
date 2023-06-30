@@ -60,17 +60,20 @@ struct params
     
     bool validDir                    = false;
     bool enter                       = false;
-    std::string path = "C:\\";
+    std::string path = "";
     PDIRECT3DTEXTURE9 folder_tex;
     PDIRECT3DTEXTURE9 file_tex;
     PDIRECT3DTEXTURE9 example_tex;
+    PDIRECT3DTEXTURE9 drive_tex;
    
     int folder_width = 0;
     int file_width = 0;
     int example_width = 0;
+    int drive_width = 0;
     int folder_height = 0;
     int file_height = 0;
     int example_height = 0;
+    int drive_height = 0;
 
     int errorCount = 0;
     bool *checkboxes_allUnits;          //this array is used to know if a unit is selected in the 'all' tree node
@@ -131,5 +134,5 @@ bool checkDirectoryTxt();
 void updateImGuiWindow(HWND hWnd);
 void showModif(std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vector[]);
 std::string fileExplorer(params* user_inputs);
-bool directoryWindow(params* user_inputs, bool* x_button);
+bool directoryWindow(params* user_inputs, bool* x_button, HWND hWnd);
 bool LoadTextureFromFile(const char* filename, PDIRECT3DTEXTURE9* out_texture, int* out_width, int* out_height);

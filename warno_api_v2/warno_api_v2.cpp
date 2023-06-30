@@ -13,11 +13,11 @@ std::vector<Ammo*> allWeapons;
 
 //entry point 
 int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmdshow) {
-    /*
+    
     AllocConsole();
     FILE* f;
     freopen_s(&f, "CONOUT$", "w", stdout);
-    */
+    
     // Create application window
     //ImGui_ImplWin32_EnableDpiAwareness();
     WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"warno_api", nullptr };
@@ -29,8 +29,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
     
 
     // Load the icon
-    HICON hIcon = static_cast<HICON>(LoadImage(hInst, "C:\\Users\\matt0\\source\\repos\\Raichu53\\Bastion-Mod-Editor\\warno_api_v2\\BS24.ico",
-        IMAGE_ICON, 32, 32, LR_LOADFROMFILE));
+    HICON hIcon = static_cast<HICON>(LoadImage(hInst, "img/BS24.ico",IMAGE_ICON, 32, 32, LR_LOADFROMFILE));
     if (hIcon)
     {
         // Set the small icon for the window (displayed in the taskbar)
@@ -104,6 +103,8 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
     IM_ASSERT(ret2);
     bool ret3 = LoadTextureFromFile("img/example.png", &inputs.example_tex, &inputs.example_width, &inputs.example_height);
     IM_ASSERT(ret3);
+    bool ret4 = LoadTextureFromFile("img/drive.png", &inputs.drive_tex, &inputs.drive_width, &inputs.drive_height);
+    IM_ASSERT(ret4);
 
     // Main loop
     bool x_button = true;
@@ -158,7 +159,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
             GUI::unitWindow(allUnits.size(), &allUnits,&allWeapons, &inputs,&settings,&x_button,hwnd);
         }
         else {
-            read_once = directoryWindow(&inputs, &x_button);
+            read_once = directoryWindow(&inputs, &x_button,hwnd);
         }
         
 
@@ -168,7 +169,7 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
         g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
         g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
         g_pd3dDevice->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
-        g_pd3dDevice->Clear(0, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_RGBA(0,102,204,100), 1.0f, 0);
+        g_pd3dDevice->Clear(0, nullptr, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_RGBA(0,0,0,0), 1.0f, 0);
         if (g_pd3dDevice->BeginScene() >= 0)
         {
             ImGui::Render();
@@ -219,10 +220,10 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
     ImGui_ImplDX9_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
-    /*
+    
     fclose(f);
     FreeConsole();
-    */
+    
     CleanupDeviceD3D();
     DestroyWindow(hwnd);
     UnregisterClassW(wc.lpszClassName, wc.hInstance);
@@ -240,8 +241,9 @@ void updateImGuiWindow(HWND hWnd) {
     int windowY = windowRect.top;
 
     //ImGuiCond_FirstUseEver to only to it first frame
-    //ImGui::SetWindowPos({ (float)(windowX + 7),(float)(windowY + 30) });
-    //ImGui::SetWindowSize({ (float)(windowWidth - 15),(float)(windowHeight - 37) });
+    ImGui::SetNextWindowPos({ (float)(windowX + 8),(float)(windowY + 31)});
+    ImGui::SetNextWindowSize({ (float)(windowWidth - 18) ,(float)(windowHeight - 42) });
+
 }
 // Helper functions
 bool CreateDeviceD3D(HWND hWnd)

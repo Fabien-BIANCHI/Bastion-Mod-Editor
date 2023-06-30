@@ -26,6 +26,8 @@ void GUI::displayUnits(std::string filter, int unitcount, std::vector<Unit*> uni
                 ImGui::EndTooltip();
             }
             /*
+            * This is working but not clear for user
+            * 
             ImGui::SameLine();
             id2.append(unit_vector->at(i)->name.c_str());
             if (ImGui::Button(id2.c_str())) {
@@ -49,6 +51,8 @@ void GUI::displayUnits(std::string filter, int unitcount, std::vector<Unit*> uni
                 ImGui::EndTooltip();
             }
             /*
+            * This is working but not clear for user
+            * 
             ImGui::SameLine();
             id.append(unit_vector->at(i)->name.c_str());
             if (ImGui::Button(id.c_str())) {
@@ -184,6 +188,8 @@ void GUI::displayAmmo(std::vector<Ammo*> weapon_vector[], std::vector<Unit*> uni
                                     ImGui::EndTooltip();
                                 }
                                 /*
+                                 * This is working but not clear for user
+                                 * 
                                 ImGui::SameLine();
                                 id.append(weapon_vector->at(h)->name.c_str());
                                 if (ImGui::Button(id.c_str())) {
@@ -432,9 +438,11 @@ void GUI::unitWindow(int unitcount, std::vector<Unit*> unit_vector[], std::vecto
     ammo_type[4] = "Balle";
     ammo_type[5] = "GuidedMissile";
 #pragma endregion
-    ImGui::Begin("Selector",x_button);
 
     updateImGuiWindow(hWnd);
+    ImGui::Begin("Selector",x_button, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground);
+
+   
     ImGui::InputTextWithHint("##unitNameBox","type here", user_inputs->str1, IM_ARRAYSIZE(user_inputs->str1));
  
     navBarButtons(unit_vector, weapon_vector, user_inputs);

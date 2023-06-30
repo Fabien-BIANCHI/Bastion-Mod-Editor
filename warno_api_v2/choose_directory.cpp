@@ -6,9 +6,6 @@
 #include <sys/stat.h>
 #include "dirent.h" 
 
-#define NORMAL_COLOR  "\x1B[0m"
-#define GREEN  "\x1B[32m"
-#define BLUE  "\x1B[34m"
 
 
 //Vérifier si le chemin existe
@@ -91,35 +88,69 @@ int numberOfSlash(std::string* str) {
     }
     return count;
 }
-void backPath(std::string* str) {
+void printDrives(std::string* str,params* user_inputs) {
+    DWORD drives = GetLogicalDrives();
+    ImGui::Text("Select a drive");
+    // Loop through all the drive letters (A-Z)
+    for (char drive = 'A'; drive <= 'Z'; ++drive) {
+        // Check if the corresponding bit is set in the drives variable
+        if (drives & (1 << (drive - 'A'))) {
+            std::string drivePath = std::string(1, drive) + ":";
+
+            // Get the volume information
+            char volumeName[MAX_PATH + 1];
+            DWORD volumeSerialNumber;
+            DWORD maximumComponentLength;
+            DWORD fileSystemFlags;
+            char fileSystemName[MAX_PATH + 1];
+
+            ImGui::Image(user_inputs->drive_tex, ImVec2(user_inputs->drive_width * 0.075, user_inputs->drive_height * 0.075));
+            ImGui::SameLine();
+            if (ImGui::Selectable(("%10s", drivePath.c_str()))) {
+                *str = drivePath;
+                str->append("\\");
+            }
+        }
+    }
+}
+int backPath(std::string* str) {
 
     int count = 0;
-    if (!strcmp(str->c_str(), "C:\\")) {
-        return;
-    }
     int nb = numberOfSlash(str);
-    for (int i = 0; i < str->size(); i++) {
-        if (str->at(i) == '\\') {
-            count++;
-        }
-        if (count == nb - 1) {
-            *str = str->substr(0, i+1);
-            break;
+    if (nb > 1) {
+        for (int i = 0; i < str->size(); i++) {
+            if (str->at(i) == '\\') {
+                count++;
+            }
+            if (count == nb - 1) {
+                *str = str->substr(0, i + 1);
+                break;
+            }
         }
     }
+    else {
+        str->clear();
+    }
+    return nb;
 }
 std::string fileExplorer(params* user_inputs) {
 
 
     ImGui::Begin("File explorer");
     
-    if (ImGui::SmallButton("<-")) {
+    if (ImGui::SmallButton("<-") && user_inputs->path.size()) {
+
         backPath(&user_inputs->path);
     }
+
     ImGui::SameLine();
     ImGui::Text(user_inputs->path.c_str());
-    if (ImGui::Button("use this directory")) {
 
+    if(user_inputs->path.size() == 0) {
+        printDrives(&user_inputs->path,user_inputs);
+    }
+    
+    if (ImGui::Button("use this directory")) {
         user_inputs->validDir = true;
     }
 
@@ -131,12 +162,13 @@ std::string fileExplorer(params* user_inputs) {
 
     return user_inputs->path;
 }
-bool directoryWindow(params* user_inputs, bool* x_button) {
+bool directoryWindow(params* user_inputs, bool* x_button,HWND hWnd) {
+
     if (checkDirectoryTxt())
     {
         user_inputs->status = params::VALID;
     }
-   
+    //updateImGuiWindow(hWnd);
     ImGui::Begin("Directory Window",x_button);
 
     ImGui::InputTextWithHint("##directory", "Enter the path of your mod folder", user_inputs->user_path, IM_ARRAYSIZE(user_inputs->user_path));
