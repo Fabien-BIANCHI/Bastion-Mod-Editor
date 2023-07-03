@@ -79,11 +79,11 @@
     <LibraryPath>$(SolutionDir)warno_api_v2\Microsoft DirectX SDK (June 2010)\Lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)warno_api_v2\Microsoft DirectX SDK (June 2010)\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)warno_api_v2\Microsoft DirectX SDK (June 2010)\Lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)warno_api_v2\src;$(SolutionDir)warno_api_v2\Microsoft DirectX SDK\Include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)warno_api_v2\Microsoft DirectX SDK\Lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)warno_api_v2\Microsoft DirectX SDK (June 2010)\Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)warno_api_v2\other_includes;$(SolutionDir)warno_api_v2\Microsoft DirectX SDK (June 2010)\Include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)warno_api_v2\Microsoft DirectX SDK (June 2010)\Lib\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -151,8 +151,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="choose_directory.cpp" />
-    <ClCompile Include="get_original_data.cpp" />
+    <ClCompile Include="src\choose_directory.cpp" />
+    <ClCompile Include="src\get_original_data.cpp" />
     <ClCompile Include="imgui\backends\imgui_impl_dx9.cpp" />
     <ClCompile Include="imgui\backends\imgui_impl_win32.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
@@ -160,14 +160,16 @@
     <ClCompile Include="imgui\imgui_draw.cpp" />
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
-    <ClCompile Include="search_bar.cpp" />
-    <ClCompile Include="unit_selector.cpp" />
-    <ClCompile Include="warno_api_v2.cpp" />
-    <ClCompile Include="write_new_values.cpp" />
+    <ClCompile Include="src\search_bar.cpp" />
+    <ClCompile Include="src\unit_selector.cpp" />
+    <ClCompile Include="src\warno_api_v2.cpp" />
+    <ClCompile Include="src\write_new_values.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)warno_api_v2\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="class.h" />
-    <ClInclude Include="header.h" />
+    <ClInclude Include="src\class.h" />
+    <ClInclude Include="src\header.h" />
     <ClInclude Include="imgui\backends\imgui_impl_dx9.h" />
     <ClInclude Include="imgui\backends\imgui_impl_win32.h" />
     <ClInclude Include="imgui\imconfig.h" />
