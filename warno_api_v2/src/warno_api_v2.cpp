@@ -23,7 +23,8 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
     WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"warno_api", nullptr };
     
     RegisterClassExW(&wc);
-    HWND hwnd = CreateWindowW(wc.lpszClassName, L"Bastion Mod Editor", WS_OVERLAPPEDWINDOW, 100, 100, 800, 600, nullptr, nullptr, wc.hInstance, nullptr);
+    HWND hwnd = CreateWindowW(wc.lpszClassName, L"Bastion Mod Editor", WS_OVERLAPPEDWINDOW, WINDOW_POSX, WINDOW_POSY,
+        WINDOW_WIDTH, WINDOW_HEIGHT, nullptr, nullptr, wc.hInstance, nullptr);
     if (hwnd == NULL)
         return 1;
     
@@ -230,7 +231,8 @@ int APIENTRY WinMain(HINSTANCE hInst, HINSTANCE hInstPrev, PSTR cmdline, int cmd
 
     return 0;
 }
-void updateImGuiWindow(HWND hWnd) {
+//relative to the full size of the original windows api window
+ImVec4 updateImGuiWindow(HWND hWnd,int posXoffset,int posYoffset,int sizeWoffset,int sizeHoffset,ImGuiWindowFlags flags) {
 
     RECT windowRect;
     GetWindowRect(hWnd, &windowRect);
@@ -241,9 +243,15 @@ void updateImGuiWindow(HWND hWnd) {
     int windowY = windowRect.top;
 
     //ImGuiCond_FirstUseEver to only to it first frame
-    ImGui::SetNextWindowPos({ (float)(windowX + 8),(float)(windowY + 31)});
-    ImGui::SetNextWindowSize({ (float)(windowWidth - 18) ,(float)(windowHeight - 42) });
+    float newX = windowX + posXoffset;
+    float newY = windowY + posYoffset;
+    float newW = windowWidth + sizeWoffset;
+    float newH = windowHeight + sizeHoffset;
 
+    ImGui::SetNextWindowPos({ newX,newY},flags);
+    ImGui::SetNextWindowSize({ newW ,newH},flags);
+
+    return { newX,newY,newW,newH };
 }
 // Helper functions
 bool CreateDeviceD3D(HWND hWnd)

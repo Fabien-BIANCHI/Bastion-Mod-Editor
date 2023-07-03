@@ -133,9 +133,9 @@ int backPath(std::string* str) {
     }
     return nb;
 }
-std::string fileExplorer(params* user_inputs) {
+std::string fileExplorer(params* user_inputs,HWND hWnd) {
 
-
+    updateImGuiWindow(hWnd, WINDOW_WIDTH / 2.1, 40, -(WINDOW_WIDTH / 2), -(WINDOW_HEIGHT*0.1), ImGuiCond_FirstUseEver);
     ImGui::Begin("File explorer");
     
     if (ImGui::SmallButton("<-") && user_inputs->path.size()) {
@@ -168,7 +168,8 @@ bool directoryWindow(params* user_inputs, bool* x_button,HWND hWnd) {
     {
         user_inputs->status = params::VALID;
     }
-    //updateImGuiWindow(hWnd);
+    
+    ImVec4 posXY_sizeWH = updateImGuiWindow(hWnd, 20, 40, -(WINDOW_WIDTH / 2), -(WINDOW_HEIGHT * 0.1), ImGuiCond_FirstUseEver);
     ImGui::Begin("Directory Window",x_button);
 
     ImGui::InputTextWithHint("##directory", "Enter the path of your mod folder", user_inputs->user_path, IM_ARRAYSIZE(user_inputs->user_path));
@@ -180,7 +181,7 @@ bool directoryWindow(params* user_inputs, bool* x_button,HWND hWnd) {
         user_inputs->fileExplorer = true;
     }
     if (user_inputs->fileExplorer) {
-        fileExplorer(user_inputs);
+        fileExplorer(user_inputs,hWnd);
     }
     if (user_inputs->enter || user_inputs->validDir)
     {

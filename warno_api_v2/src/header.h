@@ -33,6 +33,10 @@
 #define NUMBER_OF_AMMO_FAMILY 15
 #define NUMBER_OF_AMMO_TYPE 6
 
+#define WINDOW_WIDTH 800
+#define WINDOW_HEIGHT 600
+#define WINDOW_POSX 100
+#define WINDOW_POSY 100
 
 //using this struct to pass data related to user choices
 struct params
@@ -131,8 +135,8 @@ bool is_file_exist(const char* fileName);
 bool isPathExist(const std::string& s);
 bool checkFiles(std::string s);
 bool checkDirectoryTxt();
-void updateImGuiWindow(HWND hWnd);
+ImVec4 updateImGuiWindow(HWND hWnd, int posXoffset, int posYoffset, int sizeWoffset, int sizeHoffset,ImGuiWindowFlags flags);
 void showModif(std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vector[]);
-std::string fileExplorer(params* user_inputs);
+std::string fileExplorer(params* user_inputs,HWND hWnd);
 bool directoryWindow(params* user_inputs, bool* x_button, HWND hWnd);
 bool LoadTextureFromFile(const char* filename, PDIRECT3DTEXTURE9* out_texture, int* out_width, int* out_height);

@@ -439,7 +439,7 @@ void GUI::unitWindow(int unitcount, std::vector<Unit*> unit_vector[], std::vecto
     ammo_type[5] = "GuidedMissile";
 #pragma endregion
 
-    updateImGuiWindow(hWnd);
+    updateImGuiWindow(hWnd,8,31,-18,-42,NULL);
     ImGui::Begin("Selector",x_button, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground);
 
    
