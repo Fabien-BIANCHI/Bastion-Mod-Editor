@@ -14,9 +14,9 @@
 #include "imgui_impl_win32.h"
 #include "imgui_impl_dx9.h"
 
-#include <d3d9.h>
-#include <d3dx9.h>
-#include <D3dx9tex.h>
+#include "../Microsoft DirectX SDK/Include/d3d9.h"
+#include "../Microsoft DirectX SDK/Include/d3dx9.h"
+#include "../Microsoft DirectX SDK/Include/D3dx9tex.h"
 #pragma comment(lib,"d3d9.lib")
 #pragma comment(lib,"d3dx9.lib")
 #pragma comment(lib, "D3dx9")
