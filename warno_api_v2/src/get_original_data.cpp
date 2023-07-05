@@ -268,6 +268,39 @@ void readLine(std::string original_line, int* line_counter_relative,int* line_co
 				current_unit->new_realRoadSpeed = realRoadSpeed;
 				current_unit->realRoadSpeedLineOffset = *line_counter_relative;
 			}
+			else if (strstr(buffer.c_str(), "ArmorDescriptorFront =")) {
+			
+				buffer = buffer.substr(23, 50);
+				
+				current_unit->armorFront = buffer;
+				current_unit->new_armorFront = buffer;
+				current_unit->armorFrontOffset = *line_counter_relative;
+			}
+			else if (strstr(buffer.c_str(), "ArmorDescriptorSides =")) {
+				
+				buffer = buffer.substr(23, 50);
+				
+				current_unit->armorSides = buffer;
+				current_unit->new_armorSides = buffer;
+				current_unit->armorSidesOffset = *line_counter_relative;
+			}
+			else if (strstr(buffer.c_str(), "ArmorDescriptorRear =")) {
+		
+				buffer = buffer.substr(22, 50);
+			
+				current_unit->armorRear = buffer;
+				current_unit->new_armorRear = buffer;
+				current_unit->armorRearOffset = *line_counter_relative;
+			}
+			else if (strstr(buffer.c_str(), "ArmorDescriptorTop =")) {
+				
+				buffer = buffer.substr(21, 50);
+				
+				current_unit->armorTop = buffer;
+				current_unit->new_armorTop = buffer;
+				current_unit->armorTopOffset = *line_counter_relative;
+			}
+			
 		}
 	}
 	/*weapondescriptor is used to know which unit owns which ammo*/

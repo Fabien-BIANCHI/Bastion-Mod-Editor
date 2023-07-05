@@ -162,6 +162,11 @@ std::string fileExplorer(params* user_inputs,HWND hWnd) {
 
     return user_inputs->path;
 }
+bool createNewMod(params* user_inputs,HWND hWnd) {
+
+    
+    return true;
+}
 bool directoryWindow(params* user_inputs, bool* x_button,HWND hWnd) {
 
     if (checkDirectoryTxt())
@@ -172,6 +177,11 @@ bool directoryWindow(params* user_inputs, bool* x_button,HWND hWnd) {
     ImVec4 posXY_sizeWH = updateImGuiWindow(hWnd, 20, 40, -(WINDOW_WIDTH / 2), -(WINDOW_HEIGHT * 0.1), ImGuiCond_FirstUseEver);
     ImGui::Begin("Directory Window",x_button);
 
+    ImGui::Text("Select an existing mod below or");
+    ImGui::SameLine();
+    if (ImGui::Selectable("create one")) {
+        user_inputs->newModWnd = true;
+    }
     ImGui::InputTextWithHint("##directory", "Enter the path of your mod folder", user_inputs->user_path, IM_ARRAYSIZE(user_inputs->user_path));
     ImGui::SameLine();
     if (ImGui::Button("Enter")) {
@@ -182,6 +192,9 @@ bool directoryWindow(params* user_inputs, bool* x_button,HWND hWnd) {
     }
     if (user_inputs->fileExplorer) {
         fileExplorer(user_inputs,hWnd);
+    }
+    if (user_inputs->newModWnd) {
+        createNewMod(user_inputs,hWnd);
     }
     if (user_inputs->enter || user_inputs->validDir)
     {

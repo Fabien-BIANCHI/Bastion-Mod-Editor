@@ -53,7 +53,7 @@ public:
 	bool isSelected = false;
 	bool viewStats = false;
 
-	std::string name,nationality,mother_country,acknow_unit_type,type_unit_formation;
+	std::string name, nationality, mother_country, acknow_unit_type, type_unit_formation, armorFront, armorRear,armorSides,armorTop, new_armorFront, new_armorRear, new_armorSides, new_armorTop;;
 	int cost,costLineOffset;
 	float fuelTime;
 	int fuel, fuelLineOffset, fuelTimeLineOffset;
@@ -64,7 +64,7 @@ public:
 	float opticalStrenght;
 	int realRoadSpeed;
 	int realRoadSpeedLineOffset;
-
+	int armorFrontOffset, armorRearOffset, armorTopOffset, armorSidesOffset;
 
 	int new_cp, new_speed, new_fuel, new_maxSpeed, new_realRoadSpeed;
 	float new_fuelTime, new_optical_strenght, new_speedBonus;

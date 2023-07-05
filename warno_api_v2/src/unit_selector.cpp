@@ -1,4 +1,5 @@
 #include "header.h"
+
 /// <summary>
 /// print the text under each sub categories (<=>tree node)
 /// using a different array for the "allUnits tree" and all the others tree b
@@ -624,6 +625,22 @@ void GUI::ammoSelectedWindow(std::vector<Ammo*> weapon_vector[], std::vector<Uni
     
     ImGui::End();
 }
+bool isCorrectArmor(char str[]) {
+
+    int armorVal = 0;
+    std::string test = str;
+    test = test.substr(25, 3);
+    std::istringstream iss(test);
+    iss >> armorVal;
+
+    if (armorVal == 0) return false; 
+    for (int i = 0; i < 22; i++) {//pas de armor au dessus de 21
+        if (i == 18)continue; //pas de armor a 18
+        if (armorVal == i)
+            return true;
+    }
+    return false;
+}
 //window opened after button "modify" is pressed
 void GUI::unitSelectedWindow(std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vector[],params* user_inputs,settings_t* settings, std::string* ack_type) {
 
@@ -634,7 +651,10 @@ void GUI::unitSelectedWindow(std::vector<Unit*> unit_vector[], std::vector<Ammo*
         user_inputs->statusUnitModWind = true;
     }
         
-
+    static char front[128];
+    static char back[128];
+    static char top[128];
+    static char sides[128];
     static int cp = 0;
     static int e = 0; //holding info about which radio button is selected, starting at index 0
     static int fuel = 0;
@@ -695,6 +715,11 @@ void GUI::unitSelectedWindow(std::vector<Unit*> unit_vector[], std::vector<Ammo*
         speedBonus = user_inputs->unitsToModify[e]->speedBonus;
         opticalStrenght = user_inputs->unitsToModify[e]->opticalStrenght;
         realRoadSpeed = user_inputs->unitsToModify[e]->realRoadSpeed;
+
+        strcpy(back, user_inputs->unitsToModify[e]->armorRear.c_str());
+        strcpy(front, user_inputs->unitsToModify[e]->armorFront.c_str());
+        strcpy(sides, user_inputs->unitsToModify[e]->armorSides.c_str());
+        strcpy(top, user_inputs->unitsToModify[e]->armorTop.c_str());
 
         user_inputs->old_e_value = e;
     }
@@ -780,7 +805,15 @@ void GUI::unitSelectedWindow(std::vector<Unit*> unit_vector[], std::vector<Ammo*
     if (ImGui::CollapsingHeader("Optical")) {
         ImGui::InputFloat("optical strenght", &opticalStrenght, (0.00F), (0.0F), "%.8f");
     }
-        
+    if (ImGui::CollapsingHeader("Armor")) {
+        ImGui::Text("change the last number between 0-22 both excluded");
+        ImGui::Text("(18 will not work)");
+        ImGui::Separator();
+        ImGui::InputText("armorFront", front, IM_ARRAYSIZE(front));
+        ImGui::InputText("armorBack", back,IM_ARRAYSIZE(front));
+        ImGui::InputText("armorSides", sides,IM_ARRAYSIZE(front));
+        ImGui::InputText("armorTop", top,IM_ARRAYSIZE(front));
+    }
     
     ImGui::Separator();
     //converting int to string
@@ -809,6 +842,24 @@ void GUI::unitSelectedWindow(std::vector<Unit*> unit_vector[], std::vector<Ammo*
             user_inputs->unitsToModify.at(u)->new_speedBonus = speedBonus;
             user_inputs->unitsToModify.at(u)->new_optical_strenght = opticalStrenght;
             user_inputs->unitsToModify.at(u)->new_realRoadSpeed = realRoadSpeed;
+
+            if(isCorrectArmor(front))
+                user_inputs->unitsToModify.at(u)->new_armorFront = front;
+            else
+                user_inputs->unitsToModify.at(u)->new_armorFront = user_inputs->unitsToModify.at(u)->armorFront;
+            if (isCorrectArmor(back))
+                user_inputs->unitsToModify.at(u)->new_armorRear = back;
+            else
+                user_inputs->unitsToModify.at(u)->new_armorFront = user_inputs->unitsToModify.at(u)->armorRear;
+            if (isCorrectArmor(sides))
+                user_inputs->unitsToModify.at(u)->new_armorSides = sides;
+            else
+                user_inputs->unitsToModify.at(u)->new_armorFront = user_inputs->unitsToModify.at(u)->armorSides;
+            if (isCorrectArmor(top))
+                user_inputs->unitsToModify.at(u)->new_armorTop = top;
+            else
+                user_inputs->unitsToModify.at(u)->new_armorFront = user_inputs->unitsToModify.at(u)->armorTop;
+
         }
     
 
@@ -824,6 +875,7 @@ void GUI::unitSelectedWindow(std::vector<Unit*> unit_vector[], std::vector<Ammo*
     }
     ImGui::End();
 }
+
 void showModif(std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vector[]) {
 
     ImGui::Text("Units: ");
@@ -861,6 +913,22 @@ void showModif(std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vecto
             if (curr->opticalStrenght != curr->new_optical_strenght) {
                 ImGui::Text("   %s ", curr->name.c_str()); ImGui::SameLine();
                 ImGui::Text("optical_strenght: %f -> %f", curr->opticalStrenght, curr->new_optical_strenght);
+            }
+            if (curr->armorFront != curr->new_armorFront) {
+                ImGui::Text("   %s ", curr->name.c_str()); ImGui::SameLine();
+                ImGui::Text("armorFront: %s -> %s", curr->armorFront.c_str(), curr->new_armorFront.c_str());
+            }
+            if (curr->armorRear != curr->new_armorRear) {
+                ImGui::Text("   %s ", curr->name.c_str()); ImGui::SameLine();
+                ImGui::Text("armorBack: %s -> %s", curr->armorRear.c_str(), curr->new_armorRear.c_str());
+            }
+            if (curr->armorSides != curr->new_armorSides) {
+                ImGui::Text("   %s ", curr->name.c_str()); ImGui::SameLine();
+                ImGui::Text("armorSides: %s -> %s", curr->armorSides.c_str(), curr->new_armorSides.c_str());
+            }
+            if (curr->armorTop != curr->new_armorTop) {
+                ImGui::Text("   %s ", curr->name.c_str()); ImGui::SameLine();
+                ImGui::Text("armorTop: %s -> %s", curr->armorTop.c_str(), curr->new_armorTop.c_str());
             }
         }
     }

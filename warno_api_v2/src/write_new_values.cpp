@@ -5,8 +5,8 @@ std::string customStr(std::string text, int* intVal,float* floatVal) {
 
     if (intVal && floatVal) 
         MessageBoxA(NULL,"Error1 writing data",NULL,NULL);
-    if(!intVal && !floatVal)
-        MessageBoxA(NULL, "Error2 writing data", NULL, NULL);
+    if (!intVal && !floatVal)
+        return text; //we just return the original str
 
     std::string s;
     std::string str;
@@ -70,6 +70,7 @@ bool writeData(params* modPtrs,settings_t settings,bool isUnit) {
     Unit* curr_unit = nullptr;
     Ammo* curr_ammo = nullptr;
 
+
     while ((fgets(buffer, BUFFER_SIZE, fPtr)) != NULL)
     {
         if (isUnit) {
@@ -117,6 +118,30 @@ bool writeData(params* modPtrs,settings_t settings,bool isUnit) {
                     if (count == (curr_unit->exportLineNumber + curr_unit->realRoadSpeedLineOffset)) {
 
                         fputs(customStr("                RealRoadSpeed = ", &curr_unit->new_realRoadSpeed, NULL).append("\n").c_str(), fTemp);
+                        hit = true;
+                    }
+                if (curr_unit->armorFrontOffset != 0)
+                    if (count == (curr_unit->exportLineNumber + curr_unit->armorFrontOffset)) {
+                       
+                        fputs(customStr("                        ArmorDescriptorFront = ", NULL, NULL).append(curr_unit->new_armorFront).c_str(), fTemp);
+                        hit = true;
+                    }
+                if (curr_unit->armorSidesOffset != 0)
+                    if (count == (curr_unit->exportLineNumber + curr_unit->armorSidesOffset)) {
+
+                        fputs(customStr("                        ArmorDescriptorSides = ", NULL, NULL).append(curr_unit->new_armorSides).c_str(), fTemp);
+                        hit = true;
+                    }
+                if (curr_unit->armorRearOffset != 0)
+                    if (count == (curr_unit->exportLineNumber + curr_unit->armorRearOffset)) {
+
+                        fputs(customStr("                        ArmorDescriptorRear = ", NULL, NULL).append(curr_unit->new_armorRear).c_str(), fTemp);
+                        hit = true;
+                    }
+                if (curr_unit->armorTopOffset != 0)
+                    if (count == (curr_unit->exportLineNumber + curr_unit->armorTopOffset)) {
+
+                        fputs(customStr("                        ArmorDescriptorTop = ", NULL, NULL).append(curr_unit->new_armorTop).c_str(), fTemp);
                         hit = true;
                     }
             }

@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <cctype>
 #include <regex>
+#include <cstdlib>
+#include <cstring>
 
 #include "imgui.h"
 #include "imgui_impl_win32.h"
@@ -46,6 +48,7 @@ struct params
     int old_i_value = -1;
 
     char str1[128]       = "";        
+    char str2[128]       = "";        
     char user_path[128]  = "";
 
     bool modify_units                = false;        //set to true when the user press "modify selected units"
@@ -64,6 +67,7 @@ struct params
     
     bool validDir                    = false;
     bool enter                       = false;
+    bool newModWnd                   = false;
     std::string path = "";
     PDIRECT3DTEXTURE9 folder_tex;
     PDIRECT3DTEXTURE9 file_tex;
