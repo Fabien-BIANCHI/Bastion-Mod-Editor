@@ -1,1 +1,1 @@
-###Download setup only : 
+go to the "Releases" tab to download only the installer  
