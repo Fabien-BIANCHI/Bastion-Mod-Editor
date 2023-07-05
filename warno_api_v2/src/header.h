@@ -144,3 +144,4 @@ void showModif(std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vecto
 std::string fileExplorer(params* user_inputs,HWND hWnd);
 bool directoryWindow(params* user_inputs, bool* x_button, HWND hWnd);
 bool LoadTextureFromFile(const char* filename, PDIRECT3DTEXTURE9* out_texture, int* out_width, int* out_height);
+bool generateMod(params* user_input);
