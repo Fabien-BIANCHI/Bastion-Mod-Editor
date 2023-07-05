@@ -349,6 +349,7 @@ void GUI::navBarButtons(std::vector<Unit*> unit_vector[], std::vector<Ammo*> wea
     ImGui::SameLine();
 
     if (ImGui::Button("modify selected")) {
+       
         user_inputs->unitsToModify.clear();
         user_inputs->ammunitionToModify.clear();
 
@@ -443,6 +444,7 @@ void GUI::unitWindow(int unitcount, std::vector<Unit*> unit_vector[], std::vecto
     updateImGuiWindow(hWnd,8,31,-18,-42,NULL);
     ImGui::Begin("Selector",x_button, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground);
 
+ 
    
     ImGui::InputTextWithHint("##unitNameBox","type here", user_inputs->str1, IM_ARRAYSIZE(user_inputs->str1));
  
@@ -486,7 +488,11 @@ void GUI::unitWindow(int unitcount, std::vector<Unit*> unit_vector[], std::vecto
         else
             user_inputs->modify_ammo = false;
     }
-   
+    if (ImGui::IsWindowFocused())
+    {
+        user_inputs->modify_ammo = false;
+        user_inputs->modify_units = false;
+    }
     ImGui::End();
 }
 void GUI::updateStatsView(params* user_inputs,int indexToSkip) {
@@ -868,6 +874,12 @@ void GUI::unitSelectedWindow(std::vector<Unit*> unit_vector[], std::vector<Ammo*
         }
             
     }
+    /*
+    ImGui::SameLine();
+    if (ImGui::Button("generate mod")) {
+        generateMod(user_inputs);
+    }
+    */
     ImGui::PopStyleColor(3);
     ImGui::PopID();
     if (user_inputs->restartApp) {
