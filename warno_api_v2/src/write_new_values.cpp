@@ -150,6 +150,12 @@ bool writeData(params* modPtrs,settings_t settings,bool isUnit) {
                         fputs(customStr("                    ProductionTime     = ", &curr_unit->new_protection_time, NULL).append("\n").c_str(), fTemp);
                         hit = true;
                     }
+                if (curr_unit->stealthOffset != 0)
+                    if (count == (curr_unit->exportLineNumber + curr_unit->stealthOffset)) {
+
+                        fputs(customStr("            UnitConcealmentBonus = ", NULL, &curr_unit->new_stealth).append("\n").c_str(), fTemp);
+                        hit = true;
+                    }
             }
             if (!hit) {
                 fputs(buffer, fTemp);

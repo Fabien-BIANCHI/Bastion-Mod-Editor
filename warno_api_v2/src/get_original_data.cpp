@@ -310,6 +310,16 @@ void readLine(std::string original_line, int* line_counter_relative,int* line_co
 				current_unit->new_protection_time = prodTime;
 				current_unit->protection_timeOffset = *line_counter_relative;
 			}
+			else if (strstr(buffer.c_str(), "UnitConcealmentBonus = ")) {
+				float stealth;
+				buffer = buffer.substr(23, 5);
+
+				std::istringstream iss(buffer);
+				iss >> stealth;
+				current_unit->stealth = stealth;
+				current_unit->new_stealth = stealth;
+				current_unit->stealthOffset = *line_counter_relative;
+				}
 		}
 	}
 	/*weapondescriptor is used to know which unit owns which ammo*/

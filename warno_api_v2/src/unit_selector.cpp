@@ -665,6 +665,7 @@ void GUI::unitSelectedWindow(std::vector<Unit*> unit_vector[], std::vector<Ammo*
     static int e = 0; //holding info about which radio button is selected, starting at index 0
     static int fuel = 0;
     static float fuelTime = 0.f;
+    static float stealth = 0.f;
     static int maxspeed = 0;
     static float speedBonus = 0.f;
     static float opticalStrenght = 0.f;
@@ -729,6 +730,7 @@ void GUI::unitSelectedWindow(std::vector<Unit*> unit_vector[], std::vector<Ammo*
         strcpy(top, user_inputs->unitsToModify[e]->armorTop.c_str());
 
         prodTime = user_inputs->unitsToModify[e]->production_time;
+        stealth = user_inputs->unitsToModify[e]->stealth;
         user_inputs->old_e_value = e;
     }
     
@@ -823,7 +825,9 @@ void GUI::unitSelectedWindow(std::vector<Unit*> unit_vector[], std::vector<Ammo*
         ImGui::InputText("armorSides", sides,IM_ARRAYSIZE(front));
         ImGui::InputText("armorTop", top,IM_ARRAYSIZE(front));
     }
-    
+    if (ImGui::CollapsingHeader("Visibility")) {
+        ImGui::InputFloat("stealth", &stealth);
+    }
     ImGui::Separator();
     //converting int to string
     std::stringstream ss;
@@ -870,6 +874,7 @@ void GUI::unitSelectedWindow(std::vector<Unit*> unit_vector[], std::vector<Ammo*
                 user_inputs->unitsToModify.at(u)->new_armorFront = user_inputs->unitsToModify.at(u)->armorTop;
 
             user_inputs->unitsToModify.at(u)->new_protection_time = prodTime;
+            user_inputs->unitsToModify.at(u)->new_stealth = stealth;
         }
     
 
@@ -894,6 +899,8 @@ void GUI::unitSelectedWindow(std::vector<Unit*> unit_vector[], std::vector<Ammo*
 
 void showModif(std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vector[]) {
 
+    ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Restart the app to see the changes in the data files");
+    ImGui::Separator();
     ImGui::Text("Units: ");
     Unit* curr = nullptr;
     if (unit_vector) {
@@ -949,6 +956,10 @@ void showModif(std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vecto
             if (curr->production_time != curr->new_protection_time) {
                 ImGui::Text("   %s ", curr->name.c_str()); ImGui::SameLine();
                 ImGui::Text("production time: %d -> %d", curr->production_time, curr->new_protection_time);
+            }
+            if (curr->stealth != curr->new_stealth) {
+                ImGui::Text("   %s ", curr->name.c_str()); ImGui::SameLine();
+                ImGui::Text("production time: %f -> %f", curr->stealth, curr->new_stealth);
             }
         }
     }

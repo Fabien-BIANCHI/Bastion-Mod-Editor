@@ -61,14 +61,15 @@ public:
 	float speedBonus;
 	int speedBonusLineOffset;
 	int opticalStrenghtLineOffset;
-	float opticalStrenght;
+	float opticalStrenght,stealth;
+	int stealthOffset;
 	int realRoadSpeed;
 	int realRoadSpeedLineOffset;
 	int armorFrontOffset, armorRearOffset, armorTopOffset, armorSidesOffset;
 	int production_time, new_protection_time, protection_timeOffset;
 	int new_cp, new_speed, new_fuel, new_maxSpeed, new_realRoadSpeed;
-	float new_fuelTime, new_optical_strenght, new_speedBonus;
-
+	float new_fuelTime, new_optical_strenght, new_speedBonus,new_stealth;
+	
 	
 	Weapons* guns;
 
