@@ -319,7 +319,34 @@ void readLine(std::string original_line, int* line_counter_relative,int* line_co
 				current_unit->stealth = stealth;
 				current_unit->new_stealth = stealth;
 				current_unit->stealthOffset = *line_counter_relative;
+			}
+			else if (strstr(buffer.c_str(), "AutoCoverRange             = ")) {
+				int range;
+				int first = buffer.find_first_of('*');
+				if (first != std::string::npos) {
+					buffer = buffer.substr(29, first);
+
+					std::istringstream iss(buffer);
+					iss >> range;
+					current_unit->autoCoverRange = range;
+					current_unit->new_autoCoverRange = range;
+					current_unit->autoCoverRangeOffset = *line_counter_relative;
 				}
+			}
+			else if (strstr(buffer.c_str(), "OccupationRadius           = ")) {
+				int radius;
+				int first = buffer.find_first_of('*');
+				if (first != std::string::npos) {
+					buffer = buffer.substr(29, first);
+
+					std::istringstream iss(buffer);
+					iss >> radius;
+					current_unit->occupationRadius = radius;
+					current_unit->new_occupationRadius = radius;
+					current_unit->occupationRadiusOffset = *line_counter_relative;
+				}
+			}
+
 		}
 	}
 	/*weapondescriptor is used to know which unit owns which ammo*/

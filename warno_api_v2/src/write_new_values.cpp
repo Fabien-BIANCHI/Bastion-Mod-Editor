@@ -156,6 +156,18 @@ bool writeData(params* modPtrs,settings_t settings,bool isUnit) {
                         fputs(customStr("            UnitConcealmentBonus = ", NULL, &curr_unit->new_stealth).append("\n").c_str(), fTemp);
                         hit = true;
                     }
+                if (curr_unit->autoCoverRangeOffset != 0)
+                    if (count == (curr_unit->exportLineNumber + curr_unit->autoCoverRangeOffset)) {
+
+                        fputs(customStr("                    AutoCoverRange             = ", &curr_unit->new_autoCoverRange,NULL ).append("*Metre\n").c_str(), fTemp);
+                        hit = true;
+                    }
+                if (curr_unit->occupationRadiusOffset != 0)
+                    if (count == (curr_unit->exportLineNumber + curr_unit->occupationRadiusOffset)) {
+
+                        fputs(customStr("                    OccupationRadius           = ", &curr_unit->new_occupationRadius,NULL).append("*Metre\n").c_str(), fTemp);
+                        hit = true;
+                    }
             }
             if (!hit) {
                 fputs(buffer, fTemp);

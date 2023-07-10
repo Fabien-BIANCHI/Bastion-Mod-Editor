@@ -671,6 +671,8 @@ void GUI::unitSelectedWindow(std::vector<Unit*> unit_vector[], std::vector<Ammo*
     static float opticalStrenght = 0.f;
     static int realRoadSpeed = 0;
     static int prodTime = 0;
+    static int autoCoverRange = 0;
+    static int occupationRadius = 0;
     int size = user_inputs->unitsToModify.size();
 
     //les types d'unités dont on va afficher leur speedbonusonroad et pouvoir les modifier
@@ -731,6 +733,8 @@ void GUI::unitSelectedWindow(std::vector<Unit*> unit_vector[], std::vector<Ammo*
 
         prodTime = user_inputs->unitsToModify[e]->production_time;
         stealth = user_inputs->unitsToModify[e]->stealth;
+        autoCoverRange = user_inputs->unitsToModify[e]->autoCoverRange;
+        occupationRadius = user_inputs->unitsToModify[e]->occupationRadius;
         user_inputs->old_e_value = e;
     }
     
@@ -827,6 +831,8 @@ void GUI::unitSelectedWindow(std::vector<Unit*> unit_vector[], std::vector<Ammo*
     }
     if (ImGui::CollapsingHeader("Visibility")) {
         ImGui::InputFloat("stealth", &stealth);
+        ImGui::InputInt("autoCoverRange", &autoCoverRange);
+        ImGui::InputInt("occupationRadius", &occupationRadius);
     }
     ImGui::Separator();
     //converting int to string
@@ -875,6 +881,8 @@ void GUI::unitSelectedWindow(std::vector<Unit*> unit_vector[], std::vector<Ammo*
 
             user_inputs->unitsToModify.at(u)->new_protection_time = prodTime;
             user_inputs->unitsToModify.at(u)->new_stealth = stealth;
+            user_inputs->unitsToModify.at(u)->new_autoCoverRange = autoCoverRange;
+            user_inputs->unitsToModify.at(u)->new_occupationRadius = occupationRadius;
         }
     
 
@@ -959,7 +967,15 @@ void showModif(std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vecto
             }
             if (curr->stealth != curr->new_stealth) {
                 ImGui::Text("   %s ", curr->name.c_str()); ImGui::SameLine();
-                ImGui::Text("production time: %f -> %f", curr->stealth, curr->new_stealth);
+                ImGui::Text("stealth: %f -> %f", curr->stealth, curr->new_stealth);
+            }
+            if (curr->autoCoverRange != curr->new_autoCoverRange) {
+                ImGui::Text("   %s ", curr->name.c_str()); ImGui::SameLine();
+                ImGui::Text("autoCoverRange: %d -> %d", curr->autoCoverRange, curr->new_autoCoverRange);
+            }
+            if (curr->occupationRadius != curr->new_occupationRadius) {
+                ImGui::Text("   %s ", curr->name.c_str()); ImGui::SameLine();
+                ImGui::Text("occupationRadius: %d -> %d", curr->occupationRadius, curr->new_occupationRadius);
             }
         }
     }
