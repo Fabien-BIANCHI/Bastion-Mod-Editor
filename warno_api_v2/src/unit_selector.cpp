@@ -669,6 +669,7 @@ void GUI::unitSelectedWindow(std::vector<Unit*> unit_vector[], std::vector<Ammo*
     static float speedBonus = 0.f;
     static float opticalStrenght = 0.f;
     static int realRoadSpeed = 0;
+    static int prodTime = 0;
     int size = user_inputs->unitsToModify.size();
 
     //les types d'unités dont on va afficher leur speedbonusonroad et pouvoir les modifier
@@ -727,6 +728,7 @@ void GUI::unitSelectedWindow(std::vector<Unit*> unit_vector[], std::vector<Ammo*
         strcpy(sides, user_inputs->unitsToModify[e]->armorSides.c_str());
         strcpy(top, user_inputs->unitsToModify[e]->armorTop.c_str());
 
+        prodTime = user_inputs->unitsToModify[e]->production_time;
         user_inputs->old_e_value = e;
     }
     
@@ -750,10 +752,11 @@ void GUI::unitSelectedWindow(std::vector<Unit*> unit_vector[], std::vector<Ammo*
     ImGui::Separator();
     ImGui::Text("Modifications : ");
     ImGui::Separator();
+    if (ImGui::CollapsingHeader("deployment")) {
+        ImGui::InputInt("command points", &cp);
+        ImGui::InputInt("production time", &prodTime);
 
-    ImGui::InputInt("command points", &cp);
-
-
+    }
     if (ImGui::CollapsingHeader("Fuel attributes")) {
         ImGui::InputInt("fuel capacity", &fuel);
         ImGui::InputFloat("fuel time", &fuelTime, (0.00F), (0.0F), "%.8f");
@@ -866,6 +869,7 @@ void GUI::unitSelectedWindow(std::vector<Unit*> unit_vector[], std::vector<Ammo*
             else
                 user_inputs->unitsToModify.at(u)->new_armorFront = user_inputs->unitsToModify.at(u)->armorTop;
 
+            user_inputs->unitsToModify.at(u)->new_protection_time = prodTime;
         }
     
 
@@ -941,6 +945,10 @@ void showModif(std::vector<Unit*> unit_vector[], std::vector<Ammo*> weapon_vecto
             if (curr->armorTop != curr->new_armorTop) {
                 ImGui::Text("   %s ", curr->name.c_str()); ImGui::SameLine();
                 ImGui::Text("armorTop: %s -> %s", curr->armorTop.c_str(), curr->new_armorTop.c_str());
+            }
+            if (curr->production_time != curr->new_protection_time) {
+                ImGui::Text("   %s ", curr->name.c_str()); ImGui::SameLine();
+                ImGui::Text("production time: %d -> %d", curr->production_time, curr->new_protection_time);
             }
         }
     }

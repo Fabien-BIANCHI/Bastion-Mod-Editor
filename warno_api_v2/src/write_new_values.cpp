@@ -144,6 +144,12 @@ bool writeData(params* modPtrs,settings_t settings,bool isUnit) {
                         fputs(customStr("                        ArmorDescriptorTop = ", NULL, NULL).append(curr_unit->new_armorTop).c_str(), fTemp);
                         hit = true;
                     }
+                if (curr_unit->protection_timeOffset != 0)
+                    if (count == (curr_unit->exportLineNumber + curr_unit->protection_timeOffset)) {
+
+                        fputs(customStr("                    ProductionTime     = ", &curr_unit->new_protection_time, NULL).append("\n").c_str(), fTemp);
+                        hit = true;
+                    }
             }
             if (!hit) {
                 fputs(buffer, fTemp);

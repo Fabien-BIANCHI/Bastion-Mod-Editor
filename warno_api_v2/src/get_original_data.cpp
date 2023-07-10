@@ -300,7 +300,16 @@ void readLine(std::string original_line, int* line_counter_relative,int* line_co
 				current_unit->new_armorTop = buffer;
 				current_unit->armorTopOffset = *line_counter_relative;
 			}
-			
+			else if (strstr(buffer.c_str(), "ProductionTime     = ")) {
+				int prodTime;
+				buffer = buffer.substr(21, 5);
+
+				std::istringstream iss(buffer);
+				iss >> prodTime;
+				current_unit->production_time = prodTime;
+				current_unit->new_protection_time = prodTime;
+				current_unit->protection_timeOffset = *line_counter_relative;
+			}
 		}
 	}
 	/*weapondescriptor is used to know which unit owns which ammo*/
